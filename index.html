@@ -15,7 +15,7 @@
       document.documentElement.setAttribute('data-theme', t);
     })();
   </script>
-  <title>Enkryption — Organization Manager</title>
+  <title>Enkryption</title>
   
   <!-- Favicon Setup -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -88,7 +88,9 @@
     }
 
     body {
-      background: #000000;
+      background:
+        radial-gradient(600px 400px at 50% 0%, rgba(var(--accent-rgb), 0.05), transparent 70%),
+        linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
       background-attachment: fixed;
     }
     body::before {
@@ -1406,6 +1408,63 @@
     .sidebar-header .tt-icon { transform-origin: center; }
     .sidebar-header .tt-sun,
     .sidebar-header .tt-moon { width: 14px; height: 14px; margin: -7px 0 0 -7px; }
+
+    /* ============================================================
+       KEY PAGE
+       ============================================================ */
+    @keyframes keyDrop {
+      from { opacity: 0; translate: 0 -56px; scale: 0.92; }
+      to   { opacity: 1; translate: 0 0; scale: 1; }
+    }
+    .key-page {
+      position: fixed; inset: 0; z-index: 1;
+      display: none; flex-direction: column;
+      background: var(--panel);
+      animation: fadeIn 500ms var(--ease-out-expo) both;
+    }
+    .key-bar {
+      height: 56px; padding: 0 20px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .key-bar-right { display: flex; align-items: center; gap: 20px; min-width: 0; }
+    .key-stage { position: relative; flex: 1; overflow: hidden; touch-action: none; }
+    .key {
+      position: absolute; left: 0; top: 0; width: 240px; height: 84px;
+      cursor: grab; user-select: none; -webkit-user-select: none;
+      touch-action: none; will-change: transform; outline: none;
+    }
+    .key.dragging { cursor: grabbing; }
+    .key-art {
+      position: absolute; inset: 0; transform-origin: 42px 42px;
+      filter: drop-shadow(0 14px 16px rgba(var(--shadow-rgb), 0.45));
+      transition: filter 240ms var(--ease-out-expo);
+      animation: keyDrop 900ms var(--ease-spring) 200ms both;
+    }
+    .key.dragging .key-art { filter: drop-shadow(0 28px 26px rgba(var(--shadow-rgb), 0.5)); }
+    .key:focus-visible .key-art { outline: var(--focus-ring); outline-offset: 14px; border-radius: 12px; }
+    .key-bow {
+      position: absolute; left: 0; top: 0; width: 84px; height: 84px;
+      border-radius: 50%; border: 16px solid var(--fg);
+    }
+    .key-shaft {
+      position: absolute; left: 74px; top: 35px; width: 166px; height: 14px;
+      background: var(--fg); border-radius: 0 4px 4px 0;
+    }
+    .key-tooth { position: absolute; top: 46px; width: 13px; background: var(--fg); border-radius: 0 0 3px 3px; }
+    .key-tooth.t1 { left: 156px; height: 22px; }
+    .key-tooth.t2 { left: 184px; height: 15px; }
+    .key-tooth.t3 { left: 214px; height: 26px; }
+    .key-hint {
+      position: absolute; left: 0; right: 0; bottom: 28px; text-align: center;
+      font-size: 13px; color: var(--text-muted); pointer-events: none;
+      transition: opacity 500ms var(--ease-standard);
+    }
+    .key-hint.gone { opacity: 0; }
+    @media (max-width: 520px) {
+      .key-bar { padding: 0 14px; }
+      .key-bar-right { gap: 14px; }
+    }
 </style>
 </head>
 <body>
@@ -1456,132 +1515,72 @@
   </div>
 </div>
 
-<!-- ============ APP ============ -->
-<div class="app" id="app" style="display:none;">
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="brand">
-        <div class="brand-glyph"><span class="brand-logo" aria-hidden="true"><img class="logo-dark" src="logo-dark.png" alt="" draggable="false"><img class="logo-light" src="logo-light.png" alt="" draggable="false"></span></div>
-        <span class="brand-name">Enkryption</span>
-      </div>
-      <button type="button" class="theme-toggle" data-theme-toggle role="switch" aria-checked="true" aria-label="Dark mode" title="Switch to light mode">
-          <span class="tt-knob" aria-hidden="true">
-            <span class="tt-icon tt-moon"></span>
-            <span class="tt-icon tt-sun"><i></i></span>
-          </span>
-        </button>
+<!-- ============ KEY PAGE ============ -->
+<div class="key-page" id="app">
+  <header class="key-bar">
+    <div class="brand">
+      <div class="brand-glyph"><span class="brand-logo" aria-hidden="true"><img class="logo-dark" src="logo-dark.png" alt="" draggable="false"><img class="logo-light" src="logo-light.png" alt="" draggable="false"></span></div>
+      <span class="brand-name">Enkryption</span>
     </div>
-
-    <div class="sidebar-list-head">
-      <span class="sidebar-title">Organizations</span>
-      <button class="btn-new" id="newOrgBtn" title="Create Organization" style="display:none;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 5v14M5 12h14"/>
-        </svg>
+    <div class="key-bar-right">
+      <div class="footer-user">
+        <span class="user-glyph" id="userGlyph">U</span>
+        <span id="footerUsername">user</span>
+      </div>
+      <a class="footer-link" id="logoutLink" role="button" tabindex="0">Sign out</a>
+      <button type="button" class="theme-toggle" data-theme-toggle role="switch" aria-checked="true" aria-label="Dark mode" title="Switch to light mode">
+        <span class="tt-knob" aria-hidden="true">
+          <span class="tt-icon tt-moon"></span>
+          <span class="tt-icon tt-sun"><i></i></span>
+        </span>
       </button>
     </div>
+  </header>
 
-    <div class="org-list" id="orgList">
-      <!-- Orgs dynamically injected here -->
-    </div>
-
-    <div class="sidebar-footer">
-      <div class="footer-row">
-        <div class="footer-user">
-          <span class="user-glyph" id="userGlyph">U</span>
-          <span id="footerUsername">user</span>
-        </div>
-        <a class="footer-link" id="logoutLink" title="Sign out">Sign out</a>
-      </div>
-      <div class="footer-row footer-repo-row">
-        <a class="repo-link" href="https://github.com/Dulajisgoat/enKRYPTion" target="_blank" rel="noopener noreferrer">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
-          </svg>
-          <span>enKRYPTion</span>
-        </a>
+  <main class="key-stage" id="keyStage">
+    <div class="key" id="key" tabindex="0" role="img" aria-label="A key. Drag it, or use the arrow keys, to move it.">
+      <div class="key-art" id="keyArt">
+        <span class="key-bow"></span>
+        <span class="key-shaft"></span>
+        <span class="key-tooth t1"></span>
+        <span class="key-tooth t2"></span>
+        <span class="key-tooth t3"></span>
       </div>
     </div>
-  </aside>
-
-  <main class="main-area">
-    <div class="main-top-bar">
-      <div class="status-indicator" id="statusIndicator">
-        <span class="status-dot"></span>
-        <span id="statusText">Ready</span>
-      </div>
-      <div class="main-actions">
-        <button class="btn-action primary" id="addAccountBtn">Add Account</button>
-        <button class="btn-action danger" id="bulkDeleteBtn" style="display:none;">Delete Selected</button>
-      </div>
-    </div>
-
-    <div class="main-scroll">
-      <div class="main-inner" id="mainContent">
-        <!-- Dynamic Table/Empty State injected here -->
-      </div>
-    </div>
+    <p class="key-hint" id="keyHint">Drag the key anywhere</p>
   </main>
-</div>
-
-<!-- ============ DIALOGS ============ -->
-<div class="dialog-overlay" id="dialogOverlay">
-  <div class="dialog-box" id="dialogBox">
-    <!-- Dialog content injected dynamically -->
-  </div>
 </div>
 
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
 const CONFIG = {
-  SUPABASE_URL:           "https://fkkzdwzetthnngolakax.supabase.co",
-  SUPABASE_FUNCTIONS_URL: "https://fkkzdwzetthnngolakax.supabase.co/functions/v1",
-  AUTH_ENDPOINT:          "/auth",
-  MANAGE_ENDPOINT:        "/organizations",
-  ANON_KEY:               ""
+  FUNCTION_URL: "https://yrktytiqzguciapwlxbb.supabase.co/functions/v1/enkryption",
+  ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlya3R5dGlxemd1Y2lhcHdseGJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxMDEwMDEsImV4cCI6MjExMDY3NzAwMX0.569Zb2Fs3347Y0MDKEHecfwvos6PE8ANZhv7OtWLhQ0"
 };
 
-function getApiUrl(action) {
-  return (action === "login" || action === "register")
-    ? `${CONFIG.SUPABASE_FUNCTIONS_URL}${CONFIG.AUTH_ENDPOINT}`
-    : `${CONFIG.SUPABASE_FUNCTIONS_URL}${CONFIG.MANAGE_ENDPOINT}`;
-}
+const $ = (id) => document.getElementById(id);
+const loginScreen = $('loginScreen'), appEl = $('app'), messageEl = $('message');
+const usernameInput = $('username'), passwordInput = $('password');
+const registerBtn = $('registerBtn'), loginBtn = $('loginBtn');
+const keyEl = $('key'), keyArt = $('keyArt'), keyStage = $('keyStage'), keyHint = $('keyHint');
 
-function getStoredSession() {
-  try {
-    const userId = localStorage.getItem('userId');
-    const username = localStorage.getItem('username');
-    const authToken = localStorage.getItem('authToken');
-    if (userId && username && authToken) return { userId, username, authToken };
-  } catch {}
-  return null;
-}
-function clearSession() {
-  try {
-    localStorage.removeItem('userId');
-    localStorage.removeItem('username');
-    localStorage.removeItem('authToken');
-  } catch {}
-}
+/* ---------- session (username only) ---------- */
+function getStoredUsername() { try { return localStorage.getItem('username'); } catch { return null; } }
+function clearSession() { try { localStorage.removeItem('username'); } catch {} }
 
-const loginScreen = document.getElementById('loginScreen');
-const appEl = document.getElementById('app');
-const messageEl = document.getElementById('message');
-const usernameInput = document.getElementById('username');
-const passwordInput = document.getElementById('password');
-const registerBtn = document.getElementById('registerBtn');
-const loginBtn = document.getElementById('loginBtn');
-
+/* ---------- login / register ---------- */
 function showLoginMessage(text, type = 'error') {
   messageEl.textContent = text;
   messageEl.className = `login-message ${type}`;
 }
 
-function enterApp() {
+function enterApp(username) {
+  $('footerUsername').textContent = username;
+  $('userGlyph').textContent = username.charAt(0).toUpperCase();
   loginScreen.classList.add('hidden');
-  appEl.style.display = 'grid';
-  initManager();
+  appEl.style.display = 'flex';
+  placeKey();
 }
 
 function showLogin() {
@@ -1597,43 +1596,32 @@ function showLogin() {
 async function auth(action) {
   const username = usernameInput.value.trim();
   const password = passwordInput.value.trim();
-
-  if (!username || !password) {
-    showLoginMessage('Please enter username and password');
-    return;
-  }
+  if (!username || !password) { showLoginMessage('Please enter username and password'); return; }
 
   showLoginMessage('Processing...', 'loading');
   registerBtn.disabled = true;
   loginBtn.disabled = true;
 
   try {
-    const response = await fetch(getApiUrl(action), {
+    const response = await fetch(CONFIG.FUNCTION_URL, {
       method: 'POST',
-      mode: 'cors',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': CONFIG.ANON_KEY,
+        'Authorization': `Bearer ${CONFIG.ANON_KEY}`
+      },
       body: JSON.stringify({ action, username, password }),
     });
-
     const data = await response.json();
 
-    if (!response.ok) {
-      showLoginMessage(`HTTP ${response.status}: ${data.error || 'Server error'}`);
+    if (!response.ok || !data.success) {
+      showLoginMessage(data.error || data.message || `Error ${response.status}`);
       return;
     }
 
-    if (data.success) {
-      showLoginMessage(
-        action === 'register' ? 'Account created — welcome to Enkryption' : 'Welcome back to Enkryption',
-        'success'
-      );
-      localStorage.setItem('userId', data.userId);
-      localStorage.setItem('username', data.username);
-      localStorage.setItem('authToken', data.token);
-      setTimeout(() => enterApp(), 700);
-    } else {
-      showLoginMessage(data.error || 'Authentication failed');
-    }
+    showLoginMessage(data.created ? 'Account created — welcome to Enkryption' : 'Welcome back to Enkryption', 'success');
+    try { localStorage.setItem('username', data.username); } catch {}
+    setTimeout(() => enterApp(data.username), 700);
   } catch (error) {
     showLoginMessage('Error: ' + error.message);
   } finally {
@@ -1642,531 +1630,98 @@ async function auth(action) {
   }
 }
 
-registerBtn.addEventListener('click', (e) => { e.preventDefault(); auth('register'); });
+registerBtn.addEventListener('click', (e) => { e.preventDefault(); auth('login'); });
 loginBtn.addEventListener('click', (e) => { e.preventDefault(); auth('login'); });
-document.getElementById('authForm').addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') { e.preventDefault(); auth('login'); }
+$('authForm').addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); auth('login'); } });
+
+/* ---------- draggable key ---------- */
+const KEY_W = 240, KEY_H = 84, REST = -18, POS_KEY = 'enkryption-key-pos';
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let kx = 0, ky = 0, drag = null, angle = REST, target = REST, raf = 0;
+
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+const rangeX = () => Math.max(0, keyStage.clientWidth - KEY_W);
+const rangeY = () => Math.max(0, keyStage.clientHeight - KEY_H);
+
+function applyPos() {
+  kx = clamp(kx, 0, rangeX());
+  ky = clamp(ky, 0, rangeY());
+  keyEl.style.transform = `translate3d(${kx}px, ${ky}px, 0)`;
+}
+function placeKey() {
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(POS_KEY)); } catch {}
+  kx = (saved ? saved.fx : 0.5) * rangeX();
+  ky = (saved ? saved.fy : 0.5) * rangeY();
+  angle = target = REST;
+  keyArt.style.transform = `rotate(${REST}deg)`;
+  keyHint.classList.toggle('gone', !!saved);
+  applyPos();
+}
+function savePos() {
+  const fx = rangeX() ? kx / rangeX() : 0.5, fy = rangeY() ? ky / rangeY() : 0.5;
+  try { localStorage.setItem(POS_KEY, JSON.stringify({ fx, fy })); } catch {}
+}
+
+function tick() {
+  angle += (target - angle) * 0.14;
+  target += (REST - target) * 0.08;
+  keyArt.style.transform = `rotate(${angle}deg)`;
+  const settled = Math.abs(angle - REST) < 0.05 && Math.abs(target - REST) < 0.05;
+  raf = (drag || !settled) ? requestAnimationFrame(tick) : 0;
+}
+function sway(delta) {
+  if (reduceMotion) return;
+  target = clamp(target + delta, REST - 18, REST + 18);
+  if (!raf) raf = requestAnimationFrame(tick);
+}
+
+keyEl.addEventListener('pointerdown', (e) => {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  const r = keyStage.getBoundingClientRect();
+  drag = { l: r.left, t: r.top, ox: e.clientX - r.left - kx, oy: e.clientY - r.top - ky, last: e.clientX };
+  keyEl.setPointerCapture(e.pointerId);
+  keyEl.classList.add('dragging');
+  keyHint.classList.add('gone');
+  sway(0);
 });
-
-let ownerUsername = "";
-let orgNamespace = "";
-let selectedAccounts = new Set();
-let accountCache = [];
-
-const orgListEl = document.getElementById('orgList');
-const mainContentEl = document.getElementById('mainContent');
-const statusIndicator = document.getElementById('statusIndicator');
-const statusText = document.getElementById('statusText');
-const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
-const addAccountBtn = document.getElementById('addAccountBtn');
-const logoutLink = document.getElementById('logoutLink');
-const footerUsername = document.getElementById('footerUsername');
-const userGlyph = document.getElementById('userGlyph');
-
-function toast(msg, type = 'success') {
-  const el = document.createElement('div');
-  el.className = `toast ${type}`;
-  const icon = type === 'success'
-    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
-    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
-  el.innerHTML = `${icon}<span>${msg}</span>`;
-  document.getElementById('toastContainer').appendChild(el);
-  setTimeout(() => {
-    el.classList.add('exit');
-    setTimeout(() => el.remove(), 250);
-  }, 3500);
-}
-
-function setStatus(status) {
-  if (status === 'ready') {
-    statusText.textContent = 'Ready';
-    statusIndicator.className = 'status-indicator';
-  } else if (status === 'loading') {
-    statusText.textContent = 'Working…';
-    statusIndicator.className = 'status-indicator loading';
-  } else if (status === 'saved') {
-    statusText.textContent = 'Done';
-    statusIndicator.className = 'status-indicator saved';
-    setTimeout(() => setStatus('ready'), 1800);
-  }
-}
-
-async function apiCall(body) {
-  const token = localStorage.getItem('authToken');
-  if (!token) {
-    showLogin();
-    throw new Error("Not authenticated");
-  }
-
-  try {
-    const response = await fetch(getApiUrl(body.action), {
-      method: 'POST',
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(body),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || `HTTP ${response.status}`);
-    }
-
-    return data;
-  } catch (error) {
-    console.error('API Call Failed:', error);
-    throw error;
-  }
-}
-
-async function initManager() {
-  const session = getStoredSession();
-  if (!session) return showLogin();
-
-  footerUsername.textContent = session.username;
-  userGlyph.textContent = session.username.charAt(0).toUpperCase();
-
-  ownerUsername = session.username;
-  orgNamespace = ownerUsername + "@";
-
-  renderAppUI();
-}
-
-function renderAppUI() {
-  orgListEl.innerHTML = `
-    <div class="org-item active">
-      <span class="org-dot"></span>
-      <div class="org-item-content">
-        <div class="org-item-title">${ownerUsername}</div>
-        <div class="org-item-sub">Personal Organization</div>
-      </div>
-    </div>
-  `;
-
-  fetchAccounts();
-}
-
-async function fetchAccounts() {
-  try {
-    setStatus('loading');
-    const res = await apiCall({ action: "list_accounts" });
-
-    if (res.success && Array.isArray(res.accounts)) {
-      accountCache = res.accounts;
-      renderAccountsTable(accountCache);
-    } else {
-      renderEmptyState();
-    }
-  } catch (error) {
-    toast(error.message, 'error');
-    renderEmptyState();
-  } finally {
-    setStatus('ready');
-  }
-}
-
-function renderEmptyState() {
-  mainContentEl.innerHTML = `
-    <div class="org-header">
-      <div>
-        <div class="org-title">${ownerUsername}</div>
-      </div>
-    </div>
-    <div class="org-meta">
-      <span>Organization</span>
-      <span class="dot"></span>
-      <span>Active</span>
-    </div>
-    <div class="empty-state">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-      <div class="empty-state-title">No Sub-Accounts Yet</div>
-      <div class="empty-state-text">Create your first sub-account to manage access for this organization.</div>
-    </div>
-  `;
-}
-
-function renderAccountsTable(accounts) {
-  if (!accounts || accounts.length === 0) {
-    renderEmptyState();
-    return;
-  }
-
-  selectedAccounts.clear();
-  bulkDeleteBtn.style.display = 'none';
-
-  const rowsHtml = accounts.map(acc => `
-    <tr>
-      <td class="checkbox-cell">
-        <input type="checkbox" data-user="${acc.username}" class="row-checkbox">
-      </td>
-      <td class="td-username">${acc.username}</td>
-      <td>
-        <div class="row-actions">
-          <button class="btn-row" data-action="reroll" data-user="${acc.username}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="23 4 23 10 17 10"/>
-              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-            </svg>
-            Reroll
-          </button>
-          <button class="btn-row danger" data-action="delete" data-user="${acc.username}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-            </svg>
-            Delete
-          </button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
-
-  mainContentEl.innerHTML = `
-    <div class="org-header">
-      <div>
-        <div class="org-title">${ownerUsername}</div>
-      </div>
-    </div>
-    <div class="org-meta">
-      <span>Accounts</span>
-      <span class="dot"></span>
-      <span>${accounts.length} total</span>
-    </div>
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th class="checkbox-cell">
-              <input type="checkbox" id="selectAll">
-            </th>
-            <th>Username</th>
-            <th style="text-align:right;">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rowsHtml}
-        </tbody>
-      </table>
-    </div>
-  `;
-
-  attachTableEventListeners();
-}
-
-function attachTableEventListeners() {
-  document.querySelectorAll('.row-checkbox').forEach(cb => {
-    cb.addEventListener('change', (e) => {
-      const user = e.target.dataset.user;
-      if (e.target.checked) selectedAccounts.add(user);
-      else selectedAccounts.delete(user);
-      updateBulkDeleteBtn();
-    });
-  });
-
-  const selectAllCb = document.getElementById('selectAll');
-  if (selectAllCb) {
-    selectAllCb.addEventListener('change', (e) => {
-      document.querySelectorAll('.row-checkbox').forEach(cb => {
-        cb.checked = e.target.checked;
-        if (e.target.checked) selectedAccounts.add(cb.dataset.user);
-        else selectedAccounts.delete(cb.dataset.user);
-      });
-      updateBulkDeleteBtn();
-    });
-  }
-
-  document.querySelectorAll('.btn-row').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const action = btn.dataset.action;
-      const user = btn.dataset.user;
-      if (action === 'reroll') openRerollDialog(user);
-      else if (action === 'delete') openDeleteDialog([user]);
-    });
-  });
-}
-
-function updateBulkDeleteBtn() {
-  if (selectedAccounts.size > 0) {
-    bulkDeleteBtn.style.display = 'flex';
-    bulkDeleteBtn.textContent = `Delete Selected (${selectedAccounts.size})`;
-  } else {
-    bulkDeleteBtn.style.display = 'none';
-  }
-}
-
-const dialogOverlay = document.getElementById('dialogOverlay');
-const dialogBox = document.getElementById('dialogBox');
-
-function closeDialog() {
-  dialogOverlay.classList.remove('active');
-}
-
-dialogOverlay.addEventListener('click', (e) => {
-  if (e.target === dialogOverlay) closeDialog();
+keyEl.addEventListener('pointermove', (e) => {
+  if (!drag) return;
+  kx = e.clientX - drag.l - drag.ox;
+  ky = e.clientY - drag.t - drag.oy;
+  applyPos();
+  sway((e.clientX - drag.last) * 0.9);
+  drag.last = e.clientX;
 });
+const endDrag = () => {
+  if (!drag) return;
+  drag = null;
+  keyEl.classList.remove('dragging');
+  savePos();
+};
+keyEl.addEventListener('pointerup', endDrag);
+keyEl.addEventListener('pointercancel', endDrag);
 
-addAccountBtn.addEventListener('click', () => {
-  const dialogHtml = `
-    <div class="dialog-title">Add Sub-Account</div>
-    <div class="dialog-text">Create a new account under the <strong>${ownerUsername}</strong> organization.</div>
-
-    <div class="dialog-input-group">
-      <label>Username</label>
-      <input type="text" id="subUsernameInput" class="dialog-input" placeholder="name" autocomplete="off">
-      <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">
-        Final username: <span id="fullUsernamePreview">name@${ownerUsername}</span>
-      </div>
-    </div>
-
-    <div class="dialog-input-group">
-      <label>Password Method</label>
-      <div class="toggle-group">
-        <button class="toggle-btn active" id="randomPassBtn">Generate Random</button>
-        <button class="toggle-btn" id="customPassBtn">Custom Password</button>
-      </div>
-    </div>
-
-    <div class="dialog-input-group" id="customPassGroup" style="display:none;">
-      <label>Custom Password</label>
-      <input type="text" id="customPassInput" class="dialog-input" placeholder="Min 6 characters">
-    </div>
-
-    <div class="dialog-actions">
-      <button class="btn-primary" id="cancelDialog">Cancel</button>
-      <button class="btn-primary main" id="confirmAddAccount">Create Account</button>
-    </div>
-  `;
-  dialogBox.innerHTML = dialogHtml;
-  dialogOverlay.classList.add('active');
-
-  const subInput = document.getElementById('subUsernameInput');
-  const preview = document.getElementById('fullUsernamePreview');
-  subInput.addEventListener('input', () => {
-    preview.textContent = `${subInput.value || 'name'}@${ownerUsername}`;
-  });
-
-  const randomBtn = document.getElementById('randomPassBtn');
-  const customBtn = document.getElementById('customPassBtn');
-  const customPassGroup = document.getElementById('customPassGroup');
-
-  randomBtn.onclick = () => {
-    randomBtn.classList.add('active');
-    customBtn.classList.remove('active');
-    customPassGroup.style.display = 'none';
-  };
-  customBtn.onclick = () => {
-    customBtn.classList.add('active');
-    randomBtn.classList.remove('active');
-    customPassGroup.style.display = 'block';
-  };
-
-  document.getElementById('cancelDialog').onclick = closeDialog;
-  document.getElementById('confirmAddAccount').onclick = async () => {
-    const sub = subInput.value.trim();
-    if (!sub || !/^[a-zA-Z0-9]+$/.test(sub)) {
-      toast('Invalid username. Use only letters and numbers.', 'error');
-      return;
-    }
-
-    const useRandom = randomBtn.classList.contains('active');
-    const customPass = document.getElementById('customPassInput').value;
-
-    try {
-      setStatus('loading');
-
-      try {
-        const res = await apiCall({
-          action: 'add_account',
-          subUsername: sub,
-          useRandomPassword: useRandom,
-          customPassword: useRandom ? null : customPass
-        });
-        openCredentialsDialog(res.username, res.password, res.randomGenerated);
-      } catch (err) {
-        if (err.message.includes("You must create an organization first")) {
-          await apiCall({ action: 'create_organization' });
-
-          const res = await apiCall({
-            action: 'add_account',
-            subUsername: sub,
-            useRandomPassword: useRandom,
-            customPassword: useRandom ? null : customPass
-          });
-          openCredentialsDialog(res.username, res.password, res.randomGenerated);
-        } else {
-          throw err;
-        }
-      }
-    } catch(e) {
-      toast(e.message, 'error');
-    } finally {
-      setStatus('saved');
-    }
-  };
+keyEl.addEventListener('keydown', (e) => {
+  const step = e.shiftKey ? 48 : 16;
+  const moves = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+  if (!moves[e.key]) return;
+  e.preventDefault();
+  kx += moves[e.key][0]; ky += moves[e.key][1];
+  applyPos(); savePos(); keyHint.classList.add('gone');
+  sway(moves[e.key][0] * 0.3);
 });
+window.addEventListener('resize', applyPos);
 
-function openCredentialsDialog(username, password, isRandom) {
-  dialogBox.innerHTML = `
-    <div class="dialog-title">Account Created</div>
-    <div class="dialog-text">
-      ${isRandom ? 'A secure random password was generated.' : 'Account is ready.'}
-      Please copy the credentials now. For security reasons, the password will not be shown again.
-    </div>
-
-    <div class="dialog-input-group">
-      <label>Username</label>
-      <input type="text" class="dialog-input mono" value="${username}" readonly>
-    </div>
-
-    <div class="dialog-input-group">
-      <label>Password</label>
-      <input type="text" class="dialog-input mono" value="${password}" readonly>
-    </div>
-
-    <div class="dialog-actions">
-      <button class="btn-primary" id="copyCredsBtn">Copy Credentials</button>
-      <button class="btn-primary main" id="acceptCredsBtn">I've saved them</button>
-    </div>
-  `;
-  dialogOverlay.classList.add('active');
-
-  document.getElementById('copyCredsBtn').onclick = () => {
-    const text = `Username: ${username}\nPassword: ${password}`;
-    navigator.clipboard.writeText(text).then(() => {
-      toast('Credentials copied to clipboard');
-    });
-  };
-
-  document.getElementById('acceptCredsBtn').onclick = () => {
-    fetchAccounts();
-    closeDialog();
-  };
-}
-
-function openRerollDialog(username) {
-  dialogBox.innerHTML = `
-    <div class="dialog-title">Reroll Password</div>
-    <div class="dialog-text">
-      Are you sure you want to generate a new password for <strong>${username}</strong>?
-      The old password will immediately stop working.
-    </div>
-    <div class="dialog-actions">
-      <button class="btn-primary" id="cancelDialog">Cancel</button>
-      <button class="btn-primary main" id="confirmReroll">Generate New Password</button>
-    </div>
-  `;
-  dialogOverlay.classList.add('active');
-
-  document.getElementById('cancelDialog').onclick = closeDialog;
-  document.getElementById('confirmReroll').onclick = async () => {
-    try {
-      setStatus('loading');
-      const res = await apiCall({
-        action: 'reroll_password',
-        targetUsername: username
-      });
-      openNewPasswordDialog(res.username, res.newPassword);
-    } catch(e) {
-      toast(e.message, 'error');
-      setStatus('ready');
-    }
-  };
-}
-
-function openNewPasswordDialog(username, newPassword) {
-  dialogBox.innerHTML = `
-    <div class="dialog-title">Password Updated</div>
-    <div class="dialog-text">
-      The password for <strong>${username}</strong> has been rerolled. Copy the new password now.
-    </div>
-    <div class="dialog-input-group">
-      <label>New Password</label>
-      <input type="text" class="dialog-input mono" value="${newPassword}" readonly>
-    </div>
-    <div class="dialog-actions">
-      <button class="btn-primary" id="copyPassBtn">Copy Password</button>
-      <button class="btn-primary main" id="closeDialogBtn">Done</button>
-    </div>
-  `;
-  dialogOverlay.classList.add('active');
-  setStatus('saved');
-
-  document.getElementById('copyPassBtn').onclick = () => {
-    navigator.clipboard.writeText(newPassword).then(() => {
-      toast('Password copied to clipboard');
-    });
-  };
-  document.getElementById('closeDialogBtn').onclick = closeDialog;
-}
-
-function openDeleteDialog(usernames) {
-  const isMultiple = usernames.length > 1;
-  dialogBox.innerHTML = `
-    <div class="dialog-title">Delete ${isMultiple ? 'Accounts' : 'Account'}</div>
-    <div class="dialog-text">
-      You are about to delete ${isMultiple ? `${usernames.length} accounts` : `<strong>${usernames[0]}</strong>`}.
-      This action cannot be undone.
-    </div>
-    <div class="dialog-actions">
-      <button class="btn-primary" id="cancelDialog">Cancel</button>
-      <button class="btn-primary destructive" id="confirmDelete">Delete</button>
-    </div>
-  `;
-  dialogOverlay.classList.add('active');
-
-  document.getElementById('cancelDialog').onclick = closeDialog;
-  document.getElementById('confirmDelete').onclick = async () => {
-    try {
-      setStatus('loading');
-      if (isMultiple) {
-        const res = await apiCall({
-          action: 'delete_multiple',
-          targetUsernames: usernames
-        });
-        toast(`Deleted ${res.deletedCount} accounts`);
-      } else {
-        await apiCall({
-          action: 'delete_account',
-          targetUsername: usernames[0]
-        });
-        toast(`Deleted ${usernames[0]}`);
-      }
-
-      fetchAccounts();
-      closeDialog();
-    } catch(e) {
-      toast(e.message, 'error');
-    } finally {
-      setStatus('saved');
-    }
-  };
-}
-
-bulkDeleteBtn.addEventListener('click', () => {
-  const users = Array.from(selectedAccounts);
-  if (users.length > 0) openDeleteDialog(users);
-});
-
-logoutLink.addEventListener('click', () => {
-  clearSession();
-  ownerUsername = "";
-  orgNamespace = "";
-  accountCache = [];
-  showLogin();
-});
+/* ---------- sign out + boot ---------- */
+const logoutLink = $('logoutLink');
+const signOut = () => { clearSession(); showLogin(); };
+logoutLink.addEventListener('click', signOut);
+logoutLink.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); signOut(); } });
 
 (function boot() {
-  const session = getStoredSession();
-  if (session) enterApp();
-  else showLogin();
+  const u = getStoredUsername();
+  if (u) enterApp(u); else showLogin();
 })();
 </script>
 
