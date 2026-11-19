@@ -4,18 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark light">
-  <meta name="theme-color" content="#12061f">
+  <meta name="theme-color" content="#121212">
   <script>
     (function () {
       var t = null;
-      try { t = localStorage.getItem('vault99-theme'); } catch (e) {}
+      try { t = localStorage.getItem('enkryption-theme'); } catch (e) {}
       if (t !== 'light' && t !== 'dark') {
         t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
       }
       document.documentElement.setAttribute('data-theme', t);
     })();
   </script>
-  <title>Vault 99 — Organization Manager</title>
+  <title>Enkryption — Organization Manager</title>
   
   <!-- Favicon Setup -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -32,16 +32,16 @@
       --fg: #ffffff;
       --fg-rgb: 255, 255, 255;
       --shadow-rgb: 0, 0, 0;
-      --accent-rgb: 167, 139, 250;
+      --accent-rgb: 255, 255, 255;
       --danger-rgb: 252, 165, 165;
       --success-rgb: 134, 239, 172;
-      --overlay: rgba(15, 5, 24, 0.6);
+      --overlay: rgba(0, 0, 0, 0.6);
       --btn-solid-hover: #e8e8e8;
-      --bg-1: #1a0b2e;
-      --bg-2: #2d1b4e;
-      --bg-3: #0f0518;
+      --bg-1: #1a1a1a;
+      --bg-2: #2b2b2b;
+      --bg-3: #0a0a0a;
 
-      --panel: #12061f;
+      --panel: #121212;
       --panel-edge: rgba(var(--fg-rgb), 0.08);
 
       --line: rgba(var(--fg-rgb), 0.18);
@@ -51,13 +51,13 @@
       --text-soft: rgba(var(--fg-rgb), 0.72);
       --text-muted: rgba(var(--fg-rgb), 0.42);
 
-      --accent: #a78bfa;
+      --accent: #ffffff;
       --danger: #fca5a5;
       --success: #86efac;
       --error-tone: #f0a08a;
 
       --btn-solid-bg: var(--fg);
-      --btn-solid-fg: #12061f;
+      --btn-solid-fg: #121212;
       --btn-outline-fg: var(--fg);
 
       --focus-ring: 2px solid rgba(var(--accent-rgb), 0.55);
@@ -89,8 +89,8 @@
 
     body {
       background:
-        radial-gradient(600px 400px at 50% 0%, rgba(var(--accent-rgb), 0.06), transparent 70%),
-        linear-gradient(180deg, #1a0b2e 0%, #0f0518 100%);
+        radial-gradient(600px 400px at 50% 0%, rgba(var(--accent-rgb), 0.05), transparent 70%),
+        linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
       background-attachment: fixed;
     }
     body::before {
@@ -101,8 +101,8 @@
       pointer-events: none;
       opacity: 0;
       background:
-        radial-gradient(600px 400px at 50% 0%, rgba(var(--accent-rgb), 0.10), transparent 70%),
-        linear-gradient(180deg, #f6f1ff 0%, #e8def9 100%);
+        radial-gradient(600px 400px at 50% 0%, rgba(var(--accent-rgb), 0.06), transparent 70%),
+        linear-gradient(180deg, #ffffff 0%, #ededed 100%);
       transition: opacity 600ms var(--ease-standard);
     }
     html[data-theme="light"] body::before { opacity: 1; }
@@ -1249,20 +1249,20 @@
        ============================================================ */
     html[data-theme="light"] {
       color-scheme: light;
-      --fg: #1b0e30;
-      --fg-rgb: 27, 14, 48;
-      --shadow-rgb: 54, 28, 104;
-      --accent: #6d28d9;
-      --accent-rgb: 109, 40, 217;
+      --fg: #0f0f0f;
+      --fg-rgb: 15, 15, 15;
+      --shadow-rgb: 0, 0, 0;
+      --accent: #000000;
+      --accent-rgb: 0, 0, 0;
       --danger: #dc2626;
       --danger-rgb: 220, 38, 38;
       --success: #15803d;
       --success-rgb: 21, 128, 61;
       --error-tone: #c2410c;
       --panel: #ffffff;
-      --overlay: rgba(40, 20, 80, 0.38);
+      --overlay: rgba(0, 0, 0, 0.38);
       --btn-solid-fg: #ffffff;
-      --btn-solid-hover: #3a2760;
+      --btn-solid-hover: #2a2a2a;
       --text-soft: rgba(var(--fg-rgb), 0.78);
       --text-muted: rgba(var(--fg-rgb), 0.56);
     }
@@ -1423,9 +1423,9 @@
         </button>
     <div class="login-brand">
       <div class="login-glyph"><span class="brand-logo login-logo" aria-hidden="true"><img class="logo-dark" src="logo-dark.png" alt="" draggable="false"><img class="logo-light" src="logo-light.png" alt="" draggable="false"></span></div>
-      <div class="login-name">Vault 99</div>
+      <div class="login-name">Enkryption</div>
     </div>
-    <div class="login-tagline">vault 99 got you covered</div>
+    <div class="login-tagline">enkryption got you covered</div>
 
     <form id="authForm">
       <div class="login-form-group">
@@ -1447,7 +1447,7 @@
     </form>
 
     <div class="login-footer">
-      <div class="powered-by">powered by <span class="uniclvrpass">Vault 99</span></div>
+      <div class="powered-by">powered by <span class="uniclvrpass">Enkryption</span></div>
       <a class="repo-link" href="https://github.com/Dulajisgoat/enKRYPTion" target="_blank" rel="noopener noreferrer">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
@@ -1464,7 +1464,7 @@
     <div class="sidebar-header">
       <div class="brand">
         <div class="brand-glyph"><span class="brand-logo" aria-hidden="true"><img class="logo-dark" src="logo-dark.png" alt="" draggable="false"><img class="logo-light" src="logo-light.png" alt="" draggable="false"></span></div>
-        <span class="brand-name">Vault 99</span>
+        <span class="brand-name">Enkryption</span>
       </div>
       <button type="button" class="theme-toggle" data-theme-toggle role="switch" aria-checked="true" aria-label="Dark mode" title="Switch to light mode">
           <span class="tt-knob" aria-hidden="true">
@@ -1626,7 +1626,7 @@ async function auth(action) {
 
     if (data.success) {
       showLoginMessage(
-        action === 'register' ? 'Account created — welcome to Vault 99' : 'Welcome back to Vault 99',
+        action === 'register' ? 'Account created — welcome to Enkryption' : 'Welcome back to Enkryption',
         'success'
       );
       localStorage.setItem('userId', data.userId);
@@ -2187,13 +2187,13 @@ logoutLink.addEventListener('click', () => {
       b.setAttribute('aria-checked', dark ? 'true' : 'false');
       b.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
     });
-    if (meta) meta.setAttribute('content', dark ? '#12061f' : '#ffffff');
+    if (meta) meta.setAttribute('content', dark ? '#121212' : '#ffffff');
   }
 
   function setTheme(t) {
     root.classList.add('theme-anim');
     root.setAttribute('data-theme', t);
-    try { localStorage.setItem('vault99-theme', t); } catch (e) {}
+    try { localStorage.setItem('enkryption-theme', t); } catch (e) {}
     sync();
     clearTimeout(timer);
     timer = setTimeout(function () { root.classList.remove('theme-anim'); }, 800);
