@@ -426,6 +426,20 @@
       color: var(--fg);
       font-weight: 600;
     }
+    .repo-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color var(--t-fast);
+      margin-top: 8px;
+    }
+    .repo-link:hover { color: var(--fg); }
+    .repo-link:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+    .repo-link svg { width: 13px; height: 13px; flex-shrink: 0; }
 
     /* ============================================================
        APP LAYOUT
@@ -723,8 +737,6 @@
       border-color: var(--btn-solid-hover);
       box-shadow: 0 8px 24px rgba(var(--fg-rgb), 0.16), 0 1px 2px rgba(var(--shadow-rgb), 0.3);
     }
-    /* When JS toggles this from display:none → flex, the animation
-       plays so the button "arrives" instead of popping in. */
     .btn-action.danger {
       animation: btnAppear 420ms var(--ease-out-expo);
     }
@@ -749,8 +761,6 @@
       padding: 24px 28px 64px;
     }
 
-    /* Every fresh child of main-inner gets a choreographed entrance —
-       this is what makes table ↔ empty-state swaps feel continuous. */
     .main-inner > * {
       animation: riseIn 620ms var(--ease-out-expo) both;
     }
@@ -813,7 +823,6 @@
     }
     .empty-state-text { font-size: 13px; color: var(--text-soft); max-width: 340px; margin: 0 auto; line-height: 1.5; }
 
-    /* Accounts Table */
     .table-wrapper {
       background: var(--panel);
       border: 1px solid var(--panel-edge);
@@ -844,7 +853,6 @@
     }
     tr:last-child td { border-bottom: none; }
 
-    /* Staggered row entrance — each row materializes 30ms after the last */
     tbody tr {
       animation: riseIn 520ms var(--ease-out-expo) both;
     }
@@ -1004,9 +1012,6 @@
       opacity: 1;
     }
 
-    /* Every dialog's direct children stagger in — this also runs
-       when JS swaps the dialog's innerHTML (e.g. Add Account →
-       Credentials), giving the swap a smooth, choreographed feel. */
     .dialog-box > * {
       animation: dialogChildIn 520ms var(--ease-out-expo) both;
     }
@@ -1016,7 +1021,6 @@
     .dialog-box > *:nth-child(4) { animation-delay: 280ms; }
     .dialog-box > *:nth-child(5) { animation-delay: 340ms; }
     .dialog-box > *:nth-child(6) { animation-delay: 400ms; }
-    /* Hidden custom-pass group appears instantly when toggled */
     .dialog-box > #customPassGroup {
       animation-delay: 0ms;
     }
@@ -1266,7 +1270,6 @@
     html[data-theme="light"] .login-form-group input::placeholder,
     html[data-theme="light"] .dialog-input::placeholder { color: rgba(var(--fg-rgb), 0.34); }
 
-    /* Smooth cross-fade of every colour while the theme flips */
     html.theme-anim,
     html.theme-anim *,
     html.theme-anim *::before,
@@ -1296,7 +1299,6 @@
       }
     }
 
-    /* Logos — both are stacked, the active one fades in */
     .brand-logo { position: relative; display: block; flex-shrink: 0; }
     .brand-logo img {
       position: absolute;
@@ -1317,7 +1319,6 @@
     .brand-glyph { display: flex; align-items: center; }
     .brand-glyph .brand-logo { width: 22px; height: 28px; }
 
-    /* Dark / light switch — pure CSS sun & moon */
     .theme-toggle {
       position: relative;
       flex-shrink: 0;
@@ -1365,7 +1366,6 @@
       margin: -8px 0 0 -8px;
       transition: opacity 360ms var(--ease-out-expo), transform 560ms var(--ease-out-expo);
     }
-    /* moon */
     .tt-moon { opacity: 1; transform: rotate(0deg) scale(1); }
     .tt-moon::before {
       content: '';
@@ -1375,7 +1375,6 @@
       box-shadow: inset -4px -3px 0 0 currentColor;
       transform: rotate(-12deg);
     }
-    /* sun */
     .tt-sun { opacity: 0; transform: rotate(-90deg) scale(0.5); }
     .tt-sun::before,
     .tt-sun::after {
@@ -1413,12 +1412,6 @@
 </head>
 <body>
 
-<!--
-  ⚙️  BACKEND CONFIGURATION:
-  Edit the CONFIG block inside the <script> tag at the bottom of this file
-  if you ever need to point the app at a different Supabase project.
--->
-
 <!-- ============ LOGIN SCREEN ============ -->
 <div class="login-screen" id="loginScreen">
   <div class="login-shell">
@@ -1429,7 +1422,7 @@
           </span>
         </button>
     <div class="login-brand">
-      <div class="login-glyph"><span class="brand-logo login-logo" aria-hidden="true"><img class="logo-dark" alt="" draggable="false" src="data:image/png;base64,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"><img class="logo-light" alt="" draggable="false" src="data:image/png;base64,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"></span></div>
+      <div class="login-glyph"><span class="brand-logo login-logo" aria-hidden="true"><img class="logo-dark" src="logo-dark.png" alt="" draggable="false"><img class="logo-light" src="logo-light.png" alt="" draggable="false"></span></div>
       <div class="login-name">Vault 99</div>
     </div>
     <div class="login-tagline">vault 99 got you covered</div>
@@ -1455,6 +1448,12 @@
 
     <div class="login-footer">
       <div class="powered-by">powered by <span class="uniclvrpass">Vault 99</span></div>
+      <a class="repo-link" href="https://github.com/Dulajisgoat/enKRYPTion" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+        </svg>
+        <span>Dulajisgoat/enKRYPTion</span>
+      </a>
     </div>
   </div>
 </div>
@@ -1464,10 +1463,10 @@
   <aside class="sidebar">
     <div class="sidebar-header">
       <div class="brand">
-        <div class="brand-glyph"><span class="brand-logo " aria-hidden="true"><img class="logo-dark" alt="" draggable="false" src="data:image/png;base64,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"><img class="logo-light" alt="" draggable="false" src="data:image/png;base64,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"></span></div>
+        <div class="brand-glyph"><span class="brand-logo" aria-hidden="true"><img class="logo-dark" src="logo-dark.png" alt="" draggable="false"><img class="logo-light" src="logo-light.png" alt="" draggable="false"></span></div>
         <span class="brand-name">Vault 99</span>
       </div>
-      <button type="button" class="theme-toggle " data-theme-toggle role="switch" aria-checked="true" aria-label="Dark mode" title="Switch to light mode">
+      <button type="button" class="theme-toggle" data-theme-toggle role="switch" aria-checked="true" aria-label="Dark mode" title="Switch to light mode">
           <span class="tt-knob" aria-hidden="true">
             <span class="tt-icon tt-moon"></span>
             <span class="tt-icon tt-sun"><i></i></span>
@@ -1495,6 +1494,14 @@
           <span id="footerUsername">user</span>
         </div>
         <a class="footer-link" id="logoutLink" title="Sign out">Sign out</a>
+      </div>
+      <div class="footer-row footer-repo-row">
+        <a class="repo-link" href="https://github.com/Dulajisgoat/enKRYPTion" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+          </svg>
+          <span>enKRYPTion</span>
+        </a>
       </div>
     </div>
   </aside>
@@ -1529,12 +1536,6 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
-/* ================================================================
-   ⚙️  BACKEND CONFIGURATION
-   ================================================================
-   These values are pre-filled for the Vault 99 Supabase project.
-   The manage endpoint is now "/organizations".
-   ================================================================ */
 const CONFIG = {
   SUPABASE_URL:           "https://fkkzdwzetthnngolakax.supabase.co",
   SUPABASE_FUNCTIONS_URL: "https://fkkzdwzetthnngolakax.supabase.co/functions/v1",
@@ -1542,483 +1543,459 @@ const CONFIG = {
   MANAGE_ENDPOINT:        "/organizations",
   ANON_KEY:               ""
 };
-/* ================================================================ */
 
-/* ================================================================
-   📡  APIs THIS FILE CALLS — IMPLEMENTED ON THE BACKEND
+function getApiUrl(action) {
+  return (action === "login" || action === "register")
+    ? `${CONFIG.SUPABASE_FUNCTIONS_URL}${CONFIG.AUTH_ENDPOINT}`
+    : `${CONFIG.SUPABASE_FUNCTIONS_URL}${CONFIG.MANAGE_ENDPOINT}`;
+}
 
-   POST  <SUPABASE_FUNCTIONS_URL><AUTH_ENDPOINT>
-         body: { action: "register" | "login", username, password }
-         returns: { success, userId, username, token }
+function getStoredSession() {
+  try {
+    const userId = localStorage.getItem('userId');
+    const username = localStorage.getItem('username');
+    const authToken = localStorage.getItem('authToken');
+    if (userId && username && authToken) return { userId, username, authToken };
+  } catch {}
+  return null;
+}
+function clearSession() {
+  try {
+    localStorage.removeItem('userId');
+    localStorage.removeItem('username');
+    localStorage.removeItem('authToken');
+  } catch {}
+}
 
-   POST  <SUPABASE_FUNCTIONS_URL><MANAGE_ENDPOINT>
-         headers: { Authorization: "Bearer <token>" }
-         actions:
-           { action: "list_accounts" }
-           { action: "create_organization" }
-           { action: "add_account", subUsername, useRandomPassword, customPassword }
-           { action: "reroll_password", targetUsername }
-           { action: "delete_account", targetUsername }
-           { action: "delete_multiple", targetUsernames: [] }
-   ================================================================ */
+const loginScreen = document.getElementById('loginScreen');
+const appEl = document.getElementById('app');
+const messageEl = document.getElementById('message');
+const usernameInput = document.getElementById('username');
+const passwordInput = document.getElementById('password');
+const registerBtn = document.getElementById('registerBtn');
+const loginBtn = document.getElementById('loginBtn');
 
-  // Helper to correctly route to different edge functions dynamically
-  function getApiUrl(action) {
-    return (action === "login" || action === "register")
-      ? `${CONFIG.SUPABASE_FUNCTIONS_URL}${CONFIG.AUTH_ENDPOINT}`
-      : `${CONFIG.SUPABASE_FUNCTIONS_URL}${CONFIG.MANAGE_ENDPOINT}`;
+function showLoginMessage(text, type = 'error') {
+  messageEl.textContent = text;
+  messageEl.className = `login-message ${type}`;
+}
+
+function enterApp() {
+  loginScreen.classList.add('hidden');
+  appEl.style.display = 'grid';
+  initManager();
+}
+
+function showLogin() {
+  appEl.style.display = 'none';
+  loginScreen.classList.remove('hidden');
+  usernameInput.value = '';
+  passwordInput.value = '';
+  messageEl.textContent = '';
+  messageEl.className = 'login-message';
+  setTimeout(() => usernameInput.focus(), 100);
+}
+
+async function auth(action) {
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value.trim();
+
+  if (!username || !password) {
+    showLoginMessage('Please enter username and password');
+    return;
   }
 
-  /* ---------- Auth / Session ---------- */
-  function getStoredSession() {
-    try {
-      const userId = localStorage.getItem('userId');
-      const username = localStorage.getItem('username');
-      const authToken = localStorage.getItem('authToken');
-      if (userId && username && authToken) return { userId, username, authToken };
-    } catch {}
-    return null;
-  }
-  function clearSession() {
-    try {
-      localStorage.removeItem('userId');
-      localStorage.removeItem('username');
-      localStorage.removeItem('authToken');
-    } catch {}
-  }
+  showLoginMessage('Processing...', 'loading');
+  registerBtn.disabled = true;
+  loginBtn.disabled = true;
 
-  /* ---------- Login Screen Logic ---------- */
-  const loginScreen = document.getElementById('loginScreen');
-  const appEl = document.getElementById('app');
-  const messageEl = document.getElementById('message');
-  const usernameInput = document.getElementById('username');
-  const passwordInput = document.getElementById('password');
-  const registerBtn = document.getElementById('registerBtn');
-  const loginBtn = document.getElementById('loginBtn');
+  try {
+    const response = await fetch(getApiUrl(action), {
+      method: 'POST',
+      mode: 'cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, username, password }),
+    });
 
-  function showLoginMessage(text, type = 'error') {
-    messageEl.textContent = text;
-    messageEl.className = `login-message ${type}`;
-  }
+    const data = await response.json();
 
-  function enterApp() {
-    loginScreen.classList.add('hidden');
-    appEl.style.display = 'grid';
-    initManager();
-  }
-
-  function showLogin() {
-    appEl.style.display = 'none';
-    loginScreen.classList.remove('hidden');
-    usernameInput.value = '';
-    passwordInput.value = '';
-    messageEl.textContent = '';
-    messageEl.className = 'login-message';
-    setTimeout(() => usernameInput.focus(), 100);
-  }
-
-  async function auth(action) {
-    const username = usernameInput.value.trim();
-    const password = passwordInput.value.trim();
-
-    if (!username || !password) {
-      showLoginMessage('Please enter username and password');
+    if (!response.ok) {
+      showLoginMessage(`HTTP ${response.status}: ${data.error || 'Server error'}`);
       return;
     }
 
-    showLoginMessage('Processing...', 'loading');
-    registerBtn.disabled = true;
-    loginBtn.disabled = true;
-
-    try {
-      const response = await fetch(getApiUrl(action), {
-        method: 'POST',
-        mode: 'cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, username, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        showLoginMessage(`HTTP ${response.status}: ${data.error || 'Server error'}`);
-        return;
-      }
-
-      if (data.success) {
-        showLoginMessage(
-          action === 'register' ? 'Account created — welcome to Vault 99' : 'Welcome back to Vault 99',
-          'success'
-        );
-        localStorage.setItem('userId', data.userId);
-        localStorage.setItem('username', data.username);
-        localStorage.setItem('authToken', data.token);
-        setTimeout(() => enterApp(), 700);
-      } else {
-        showLoginMessage(data.error || 'Authentication failed');
-      }
-    } catch (error) {
-      showLoginMessage('Error: ' + error.message);
-    } finally {
-      registerBtn.disabled = false;
-      loginBtn.disabled = false;
+    if (data.success) {
+      showLoginMessage(
+        action === 'register' ? 'Account created — welcome to Vault 99' : 'Welcome back to Vault 99',
+        'success'
+      );
+      localStorage.setItem('userId', data.userId);
+      localStorage.setItem('username', data.username);
+      localStorage.setItem('authToken', data.token);
+      setTimeout(() => enterApp(), 700);
+    } else {
+      showLoginMessage(data.error || 'Authentication failed');
     }
+  } catch (error) {
+    showLoginMessage('Error: ' + error.message);
+  } finally {
+    registerBtn.disabled = false;
+    loginBtn.disabled = false;
+  }
+}
+
+registerBtn.addEventListener('click', (e) => { e.preventDefault(); auth('register'); });
+loginBtn.addEventListener('click', (e) => { e.preventDefault(); auth('login'); });
+document.getElementById('authForm').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); auth('login'); }
+});
+
+let ownerUsername = "";
+let orgNamespace = "";
+let selectedAccounts = new Set();
+let accountCache = [];
+
+const orgListEl = document.getElementById('orgList');
+const mainContentEl = document.getElementById('mainContent');
+const statusIndicator = document.getElementById('statusIndicator');
+const statusText = document.getElementById('statusText');
+const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+const addAccountBtn = document.getElementById('addAccountBtn');
+const logoutLink = document.getElementById('logoutLink');
+const footerUsername = document.getElementById('footerUsername');
+const userGlyph = document.getElementById('userGlyph');
+
+function toast(msg, type = 'success') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  const icon = type === 'success'
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+  el.innerHTML = `${icon}<span>${msg}</span>`;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => {
+    el.classList.add('exit');
+    setTimeout(() => el.remove(), 250);
+  }, 3500);
+}
+
+function setStatus(status) {
+  if (status === 'ready') {
+    statusText.textContent = 'Ready';
+    statusIndicator.className = 'status-indicator';
+  } else if (status === 'loading') {
+    statusText.textContent = 'Working…';
+    statusIndicator.className = 'status-indicator loading';
+  } else if (status === 'saved') {
+    statusText.textContent = 'Done';
+    statusIndicator.className = 'status-indicator saved';
+    setTimeout(() => setStatus('ready'), 1800);
+  }
+}
+
+async function apiCall(body) {
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    showLogin();
+    throw new Error("Not authenticated");
   }
 
-  registerBtn.addEventListener('click', (e) => { e.preventDefault(); auth('register'); });
-  loginBtn.addEventListener('click', (e) => { e.preventDefault(); auth('login'); });
-  document.getElementById('authForm').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') { e.preventDefault(); auth('login'); }
+  try {
+    const response = await fetch(getApiUrl(body.action), {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || `HTTP ${response.status}`);
+    }
+
+    return data;
+  } catch (error) {
+    console.error('API Call Failed:', error);
+    throw error;
+  }
+}
+
+async function initManager() {
+  const session = getStoredSession();
+  if (!session) return showLogin();
+
+  footerUsername.textContent = session.username;
+  userGlyph.textContent = session.username.charAt(0).toUpperCase();
+
+  ownerUsername = session.username;
+  orgNamespace = ownerUsername + "@";
+
+  renderAppUI();
+}
+
+function renderAppUI() {
+  orgListEl.innerHTML = `
+    <div class="org-item active">
+      <span class="org-dot"></span>
+      <div class="org-item-content">
+        <div class="org-item-title">${ownerUsername}</div>
+        <div class="org-item-sub">Personal Organization</div>
+      </div>
+    </div>
+  `;
+
+  fetchAccounts();
+}
+
+async function fetchAccounts() {
+  try {
+    setStatus('loading');
+    const res = await apiCall({ action: "list_accounts" });
+
+    if (res.success && Array.isArray(res.accounts)) {
+      accountCache = res.accounts;
+      renderAccountsTable(accountCache);
+    } else {
+      renderEmptyState();
+    }
+  } catch (error) {
+    toast(error.message, 'error');
+    renderEmptyState();
+  } finally {
+    setStatus('ready');
+  }
+}
+
+function renderEmptyState() {
+  mainContentEl.innerHTML = `
+    <div class="org-header">
+      <div>
+        <div class="org-title">${ownerUsername}</div>
+      </div>
+    </div>
+    <div class="org-meta">
+      <span>Organization</span>
+      <span class="dot"></span>
+      <span>Active</span>
+    </div>
+    <div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      <div class="empty-state-title">No Sub-Accounts Yet</div>
+      <div class="empty-state-text">Create your first sub-account to manage access for this organization.</div>
+    </div>
+  `;
+}
+
+function renderAccountsTable(accounts) {
+  if (!accounts || accounts.length === 0) {
+    renderEmptyState();
+    return;
+  }
+
+  selectedAccounts.clear();
+  bulkDeleteBtn.style.display = 'none';
+
+  const rowsHtml = accounts.map(acc => `
+    <tr>
+      <td class="checkbox-cell">
+        <input type="checkbox" data-user="${acc.username}" class="row-checkbox">
+      </td>
+      <td class="td-username">${acc.username}</td>
+      <td>
+        <div class="row-actions">
+          <button class="btn-row" data-action="reroll" data-user="${acc.username}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            Reroll
+          </button>
+          <button class="btn-row danger" data-action="delete" data-user="${acc.username}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            Delete
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  mainContentEl.innerHTML = `
+    <div class="org-header">
+      <div>
+        <div class="org-title">${ownerUsername}</div>
+      </div>
+    </div>
+    <div class="org-meta">
+      <span>Accounts</span>
+      <span class="dot"></span>
+      <span>${accounts.length} total</span>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th class="checkbox-cell">
+              <input type="checkbox" id="selectAll">
+            </th>
+            <th>Username</th>
+            <th style="text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  attachTableEventListeners();
+}
+
+function attachTableEventListeners() {
+  document.querySelectorAll('.row-checkbox').forEach(cb => {
+    cb.addEventListener('change', (e) => {
+      const user = e.target.dataset.user;
+      if (e.target.checked) selectedAccounts.add(user);
+      else selectedAccounts.delete(user);
+      updateBulkDeleteBtn();
+    });
   });
 
-  /* ============================================================
-     ORGANIZATION MANAGER LOGIC
-     ============================================================ */
-  let ownerUsername = ""; // e.g. "synapse"
-  let orgNamespace = "";  // e.g. "synapse@"
-  let selectedAccounts = new Set();
-  let accountCache = [];
-
-  const orgListEl = document.getElementById('orgList');
-  const mainContentEl = document.getElementById('mainContent');
-  const statusIndicator = document.getElementById('statusIndicator');
-  const statusText = document.getElementById('statusText');
-  const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
-  const addAccountBtn = document.getElementById('addAccountBtn');
-  const logoutLink = document.getElementById('logoutLink');
-  const footerUsername = document.getElementById('footerUsername');
-  const userGlyph = document.getElementById('userGlyph');
-
-  /* ---------- Toasts ---------- */
-  function toast(msg, type = 'success') {
-    const el = document.createElement('div');
-    el.className = `toast ${type}`;
-    const icon = type === 'success'
-      ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
-      : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
-    el.innerHTML = `${icon}<span>${msg}</span>`;
-    document.getElementById('toastContainer').appendChild(el);
-    setTimeout(() => {
-      el.classList.add('exit');
-      setTimeout(() => el.remove(), 250);
-    }, 3500);
-  }
-
-  function setStatus(status) {
-    if (status === 'ready') {
-      statusText.textContent = 'Ready';
-      statusIndicator.className = 'status-indicator';
-    } else if (status === 'loading') {
-      statusText.textContent = 'Working…';
-      statusIndicator.className = 'status-indicator loading';
-    } else if (status === 'saved') {
-      statusText.textContent = 'Done';
-      statusIndicator.className = 'status-indicator saved';
-      setTimeout(() => setStatus('ready'), 1800);
-    }
-  }
-
-  /* ---------- API Calls ---------- */
-  async function apiCall(body) {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      showLogin();
-      throw new Error("Not authenticated");
-    }
-
-    try {
-      const response = await fetch(getApiUrl(body.action), {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(body),
+  const selectAllCb = document.getElementById('selectAll');
+  if (selectAllCb) {
+    selectAllCb.addEventListener('change', (e) => {
+      document.querySelectorAll('.row-checkbox').forEach(cb => {
+        cb.checked = e.target.checked;
+        if (e.target.checked) selectedAccounts.add(cb.dataset.user);
+        else selectedAccounts.delete(cb.dataset.user);
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || `HTTP ${response.status}`);
-      }
-
-      return data;
-    } catch (error) {
-      console.error('API Call Failed:', error);
-      throw error;
-    }
+      updateBulkDeleteBtn();
+    });
   }
 
-  /* ---------- Initialization ---------- */
-  async function initManager() {
-    const session = getStoredSession();
-    if (!session) return showLogin();
+  document.querySelectorAll('.btn-row').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.action;
+      const user = btn.dataset.user;
+      if (action === 'reroll') openRerollDialog(user);
+      else if (action === 'delete') openDeleteDialog([user]);
+    });
+  });
+}
 
-    footerUsername.textContent = session.username;
-    userGlyph.textContent = session.username.charAt(0).toUpperCase();
-
-    ownerUsername = session.username;
-    orgNamespace = ownerUsername + "@";
-
-    renderAppUI();
+function updateBulkDeleteBtn() {
+  if (selectedAccounts.size > 0) {
+    bulkDeleteBtn.style.display = 'flex';
+    bulkDeleteBtn.textContent = `Delete Selected (${selectedAccounts.size})`;
+  } else {
+    bulkDeleteBtn.style.display = 'none';
   }
+}
 
-  function renderAppUI() {
-    // Display the clean username everywhere, no @ symbol
-    orgListEl.innerHTML = `
-      <div class="org-item active">
-        <span class="org-dot"></span>
-        <div class="org-item-content">
-          <div class="org-item-title">${ownerUsername}</div>
-          <div class="org-item-sub">Personal Organization</div>
-        </div>
+const dialogOverlay = document.getElementById('dialogOverlay');
+const dialogBox = document.getElementById('dialogBox');
+
+function closeDialog() {
+  dialogOverlay.classList.remove('active');
+}
+
+dialogOverlay.addEventListener('click', (e) => {
+  if (e.target === dialogOverlay) closeDialog();
+});
+
+addAccountBtn.addEventListener('click', () => {
+  const dialogHtml = `
+    <div class="dialog-title">Add Sub-Account</div>
+    <div class="dialog-text">Create a new account under the <strong>${ownerUsername}</strong> organization.</div>
+
+    <div class="dialog-input-group">
+      <label>Username</label>
+      <input type="text" id="subUsernameInput" class="dialog-input" placeholder="name" autocomplete="off">
+      <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">
+        Final username: <span id="fullUsernamePreview">name@${ownerUsername}</span>
       </div>
-    `;
+    </div>
 
-    fetchAccounts(); // Fetch accounts from Edge Function
-  }
+    <div class="dialog-input-group">
+      <label>Password Method</label>
+      <div class="toggle-group">
+        <button class="toggle-btn active" id="randomPassBtn">Generate Random</button>
+        <button class="toggle-btn" id="customPassBtn">Custom Password</button>
+      </div>
+    </div>
 
-  // Fetch all associated sub-accounts for the logged-in user
-  async function fetchAccounts() {
+    <div class="dialog-input-group" id="customPassGroup" style="display:none;">
+      <label>Custom Password</label>
+      <input type="text" id="customPassInput" class="dialog-input" placeholder="Min 6 characters">
+    </div>
+
+    <div class="dialog-actions">
+      <button class="btn-primary" id="cancelDialog">Cancel</button>
+      <button class="btn-primary main" id="confirmAddAccount">Create Account</button>
+    </div>
+  `;
+  dialogBox.innerHTML = dialogHtml;
+  dialogOverlay.classList.add('active');
+
+  const subInput = document.getElementById('subUsernameInput');
+  const preview = document.getElementById('fullUsernamePreview');
+  subInput.addEventListener('input', () => {
+    preview.textContent = `${subInput.value || 'name'}@${ownerUsername}`;
+  });
+
+  const randomBtn = document.getElementById('randomPassBtn');
+  const customBtn = document.getElementById('customPassBtn');
+  const customPassGroup = document.getElementById('customPassGroup');
+
+  randomBtn.onclick = () => {
+    randomBtn.classList.add('active');
+    customBtn.classList.remove('active');
+    customPassGroup.style.display = 'none';
+  };
+  customBtn.onclick = () => {
+    customBtn.classList.add('active');
+    randomBtn.classList.remove('active');
+    customPassGroup.style.display = 'block';
+  };
+
+  document.getElementById('cancelDialog').onclick = closeDialog;
+  document.getElementById('confirmAddAccount').onclick = async () => {
+    const sub = subInput.value.trim();
+    if (!sub || !/^[a-zA-Z0-9]+$/.test(sub)) {
+      toast('Invalid username. Use only letters and numbers.', 'error');
+      return;
+    }
+
+    const useRandom = randomBtn.classList.contains('active');
+    const customPass = document.getElementById('customPassInput').value;
+
     try {
       setStatus('loading');
-      const res = await apiCall({ action: "list_accounts" });
-
-      if (res.success && Array.isArray(res.accounts)) {
-        accountCache = res.accounts; // Update local cache
-        renderAccountsTable(accountCache);
-      } else {
-        renderEmptyState();
-      }
-    } catch (error) {
-      toast(error.message, 'error');
-      renderEmptyState();
-    } finally {
-      setStatus('ready');
-    }
-  }
-
-  function renderEmptyState() {
-    mainContentEl.innerHTML = `
-      <div class="org-header">
-        <div>
-          <div class="org-title">${ownerUsername}</div>
-        </div>
-      </div>
-      <div class="org-meta">
-        <span>Organization</span>
-        <span class="dot"></span>
-        <span>Active</span>
-      </div>
-      <div class="empty-state">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-          <circle cx="9" cy="7" r="4"/>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-        </svg>
-        <div class="empty-state-title">No Sub-Accounts Yet</div>
-        <div class="empty-state-text">Create your first sub-account to manage access for this organization.</div>
-      </div>
-    `;
-  }
-
-  function renderAccountsTable(accounts) {
-    if (!accounts || accounts.length === 0) {
-      renderEmptyState();
-      return;
-    }
-
-    selectedAccounts.clear();
-    bulkDeleteBtn.style.display = 'none';
-
-    const rowsHtml = accounts.map(acc => `
-      <tr>
-        <td class="checkbox-cell">
-          <input type="checkbox" data-user="${acc.username}" class="row-checkbox">
-        </td>
-        <td class="td-username">${acc.username}</td>
-        <td>
-          <div class="row-actions">
-            <button class="btn-row" data-action="reroll" data-user="${acc.username}">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="23 4 23 10 17 10"/>
-                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-              </svg>
-              Reroll
-            </button>
-            <button class="btn-row danger" data-action="delete" data-user="${acc.username}">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="3 6 5 6 21 6"/>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-              </svg>
-              Delete
-            </button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
-
-    mainContentEl.innerHTML = `
-      <div class="org-header">
-        <div>
-          <div class="org-title">${ownerUsername}</div>
-        </div>
-      </div>
-      <div class="org-meta">
-        <span>Accounts</span>
-        <span class="dot"></span>
-        <span>${accounts.length} total</span>
-      </div>
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th class="checkbox-cell">
-                <input type="checkbox" id="selectAll">
-              </th>
-              <th>Username</th>
-              <th style="text-align:right;">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rowsHtml}
-          </tbody>
-        </table>
-      </div>
-    `;
-
-    attachTableEventListeners();
-  }
-
-  function attachTableEventListeners() {
-    document.querySelectorAll('.row-checkbox').forEach(cb => {
-      cb.addEventListener('change', (e) => {
-        const user = e.target.dataset.user;
-        if (e.target.checked) selectedAccounts.add(user);
-        else selectedAccounts.delete(user);
-        updateBulkDeleteBtn();
-      });
-    });
-
-    const selectAllCb = document.getElementById('selectAll');
-    if (selectAllCb) {
-      selectAllCb.addEventListener('change', (e) => {
-        document.querySelectorAll('.row-checkbox').forEach(cb => {
-          cb.checked = e.target.checked;
-          if (e.target.checked) selectedAccounts.add(cb.dataset.user);
-          else selectedAccounts.delete(cb.dataset.user);
-        });
-        updateBulkDeleteBtn();
-      });
-    }
-
-    document.querySelectorAll('.btn-row').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const action = btn.dataset.action;
-        const user = btn.dataset.user;
-        // The username in the dataset is fully-qualified (e.g. clover@synapse).
-        if (action === 'reroll') openRerollDialog(user);
-        else if (action === 'delete') openDeleteDialog([user]);
-      });
-    });
-  }
-
-  function updateBulkDeleteBtn() {
-    if (selectedAccounts.size > 0) {
-      bulkDeleteBtn.style.display = 'flex';
-      bulkDeleteBtn.textContent = `Delete Selected (${selectedAccounts.size})`;
-    } else {
-      bulkDeleteBtn.style.display = 'none';
-    }
-  }
-
-  /* ---------- Dialog Management ---------- */
-  const dialogOverlay = document.getElementById('dialogOverlay');
-  const dialogBox = document.getElementById('dialogBox');
-
-  function closeDialog() {
-    dialogOverlay.classList.remove('active');
-  }
-
-  dialogOverlay.addEventListener('click', (e) => {
-    if (e.target === dialogOverlay) closeDialog();
-  });
-
-  /* ---------- Add Account Dialog ---------- */
-  addAccountBtn.addEventListener('click', () => {
-    const dialogHtml = `
-      <div class="dialog-title">Add Sub-Account</div>
-      <div class="dialog-text">Create a new account under the <strong>${ownerUsername}</strong> organization.</div>
-
-      <div class="dialog-input-group">
-        <label>Username</label>
-        <input type="text" id="subUsernameInput" class="dialog-input" placeholder="name" autocomplete="off">
-        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">
-          Final username: <span id="fullUsernamePreview">name@${ownerUsername}</span>
-        </div>
-      </div>
-
-      <div class="dialog-input-group">
-        <label>Password Method</label>
-        <div class="toggle-group">
-          <button class="toggle-btn active" id="randomPassBtn">Generate Random</button>
-          <button class="toggle-btn" id="customPassBtn">Custom Password</button>
-        </div>
-      </div>
-
-      <div class="dialog-input-group" id="customPassGroup" style="display:none;">
-        <label>Custom Password</label>
-        <input type="text" id="customPassInput" class="dialog-input" placeholder="Min 6 characters">
-      </div>
-
-      <div class="dialog-actions">
-        <button class="btn-primary" id="cancelDialog">Cancel</button>
-        <button class="btn-primary main" id="confirmAddAccount">Create Account</button>
-      </div>
-    `;
-    dialogBox.innerHTML = dialogHtml;
-    dialogOverlay.classList.add('active');
-
-    const subInput = document.getElementById('subUsernameInput');
-    const preview = document.getElementById('fullUsernamePreview');
-    subInput.addEventListener('input', () => {
-      preview.textContent = `${subInput.value || 'name'}@${ownerUsername}`;
-    });
-
-    const randomBtn = document.getElementById('randomPassBtn');
-    const customBtn = document.getElementById('customPassBtn');
-    const customPassGroup = document.getElementById('customPassGroup');
-
-    randomBtn.onclick = () => {
-      randomBtn.classList.add('active');
-      customBtn.classList.remove('active');
-      customPassGroup.style.display = 'none';
-    };
-    customBtn.onclick = () => {
-      customBtn.classList.add('active');
-      randomBtn.classList.remove('active');
-      customPassGroup.style.display = 'block';
-    };
-
-    document.getElementById('cancelDialog').onclick = closeDialog;
-    document.getElementById('confirmAddAccount').onclick = async () => {
-      const sub = subInput.value.trim();
-      if (!sub || !/^[a-zA-Z0-9]+$/.test(sub)) {
-        toast('Invalid username. Use only letters and numbers.', 'error');
-        return;
-      }
-
-      const useRandom = randomBtn.classList.contains('active');
-      const customPass = document.getElementById('customPassInput').value;
 
       try {
-        setStatus('loading');
+        const res = await apiCall({
+          action: 'add_account',
+          subUsername: sub,
+          useRandomPassword: useRandom,
+          customPassword: useRandom ? null : customPass
+        });
+        openCredentialsDialog(res.username, res.password, res.randomGenerated);
+      } catch (err) {
+        if (err.message.includes("You must create an organization first")) {
+          await apiCall({ action: 'create_organization' });
 
-        // Attempt to add the account directly.
-        // If the org doesn't exist yet, it will throw the specific error.
-        try {
           const res = await apiCall({
             action: 'add_account',
             subUsername: sub,
@@ -2026,196 +2003,176 @@ const CONFIG = {
             customPassword: useRandom ? null : customPass
           });
           openCredentialsDialog(res.username, res.password, res.randomGenerated);
-        } catch (err) {
-          // THE MAGIC FIX: If the backend complains the org doesn't exist, create it instantly, then retry!
-          if (err.message.includes("You must create an organization first")) {
-            await apiCall({ action: 'create_organization' });
-
-            // Retry creating the account now that the namespace exists
-            const res = await apiCall({
-              action: 'add_account',
-              subUsername: sub,
-              useRandomPassword: useRandom,
-              customPassword: useRandom ? null : customPass
-            });
-            openCredentialsDialog(res.username, res.password, res.randomGenerated);
-          } else {
-            // If it's a different error (like duplicate username), throw it to the outer catch
-            throw err;
-          }
-        }
-      } catch(e) {
-        toast(e.message, 'error');
-      } finally {
-        setStatus('saved');
-      }
-    };
-  });
-
-  /* ---------- Credentials Dialog (after adding) ---------- */
-  function openCredentialsDialog(username, password, isRandom) {
-    dialogBox.innerHTML = `
-      <div class="dialog-title">Account Created</div>
-      <div class="dialog-text">
-        ${isRandom ? 'A secure random password was generated.' : 'Account is ready.'}
-        Please copy the credentials now. For security reasons, the password will not be shown again.
-      </div>
-
-      <div class="dialog-input-group">
-        <label>Username</label>
-        <input type="text" class="dialog-input mono" value="${username}" readonly>
-      </div>
-
-      <div class="dialog-input-group">
-        <label>Password</label>
-        <input type="text" class="dialog-input mono" value="${password}" readonly>
-      </div>
-
-      <div class="dialog-actions">
-        <button class="btn-primary" id="copyCredsBtn">Copy Credentials</button>
-        <button class="btn-primary main" id="acceptCredsBtn">I've saved them</button>
-      </div>
-    `;
-    dialogOverlay.classList.add('active');
-
-    document.getElementById('copyCredsBtn').onclick = () => {
-      const text = `Username: ${username}\nPassword: ${password}`;
-      navigator.clipboard.writeText(text).then(() => {
-        toast('Credentials copied to clipboard');
-      });
-    };
-
-    document.getElementById('acceptCredsBtn').onclick = () => {
-      fetchAccounts(); // Refresh from backend instead of pushing to local array
-      closeDialog();
-    };
-  }
-
-  /* ---------- Reroll Password Dialog ---------- */
-  function openRerollDialog(username) {
-    dialogBox.innerHTML = `
-      <div class="dialog-title">Reroll Password</div>
-      <div class="dialog-text">
-        Are you sure you want to generate a new password for <strong>${username}</strong>?
-        The old password will immediately stop working.
-      </div>
-      <div class="dialog-actions">
-        <button class="btn-primary" id="cancelDialog">Cancel</button>
-        <button class="btn-primary main" id="confirmReroll">Generate New Password</button>
-      </div>
-    `;
-    dialogOverlay.classList.add('active');
-
-    document.getElementById('cancelDialog').onclick = closeDialog;
-    document.getElementById('confirmReroll').onclick = async () => {
-      try {
-        setStatus('loading');
-        const res = await apiCall({
-          action: 'reroll_password',
-          targetUsername: username
-        });
-        openNewPasswordDialog(res.username, res.newPassword);
-      } catch(e) {
-        toast(e.message, 'error');
-        setStatus('ready');
-      }
-    };
-  }
-
-  function openNewPasswordDialog(username, newPassword) {
-    dialogBox.innerHTML = `
-      <div class="dialog-title">Password Updated</div>
-      <div class="dialog-text">
-        The password for <strong>${username}</strong> has been rerolled. Copy the new password now.
-      </div>
-      <div class="dialog-input-group">
-        <label>New Password</label>
-        <input type="text" class="dialog-input mono" value="${newPassword}" readonly>
-      </div>
-      <div class="dialog-actions">
-        <button class="btn-primary" id="copyPassBtn">Copy Password</button>
-        <button class="btn-primary main" id="closeDialogBtn">Done</button>
-      </div>
-    `;
-    dialogOverlay.classList.add('active');
-    setStatus('saved');
-
-    document.getElementById('copyPassBtn').onclick = () => {
-      navigator.clipboard.writeText(newPassword).then(() => {
-        toast('Password copied to clipboard');
-      });
-    };
-    document.getElementById('closeDialogBtn').onclick = closeDialog;
-  }
-
-  /* ---------- Delete Dialogs ---------- */
-  function openDeleteDialog(usernames) {
-    const isMultiple = usernames.length > 1;
-    dialogBox.innerHTML = `
-      <div class="dialog-title">Delete ${isMultiple ? 'Accounts' : 'Account'}</div>
-      <div class="dialog-text">
-        You are about to delete ${isMultiple ? `${usernames.length} accounts` : `<strong>${usernames[0]}</strong>`}.
-        This action cannot be undone.
-      </div>
-      <div class="dialog-actions">
-        <button class="btn-primary" id="cancelDialog">Cancel</button>
-        <button class="btn-primary destructive" id="confirmDelete">Delete</button>
-      </div>
-    `;
-    dialogOverlay.classList.add('active');
-
-    document.getElementById('cancelDialog').onclick = closeDialog;
-    document.getElementById('confirmDelete').onclick = async () => {
-      try {
-        setStatus('loading');
-        if (isMultiple) {
-          const res = await apiCall({
-            action: 'delete_multiple',
-            targetUsernames: usernames
-          });
-          toast(`Deleted ${res.deletedCount} accounts`);
         } else {
-          await apiCall({
-            action: 'delete_account',
-            targetUsername: usernames[0]
-          });
-          toast(`Deleted ${usernames[0]}`);
+          throw err;
         }
-
-        fetchAccounts(); // Refresh from backend
-        closeDialog();
-      } catch(e) {
-        toast(e.message, 'error');
-      } finally {
-        setStatus('saved');
       }
-    };
-  }
+    } catch(e) {
+      toast(e.message, 'error');
+    } finally {
+      setStatus('saved');
+    }
+  };
+});
 
-  bulkDeleteBtn.addEventListener('click', () => {
-    const users = Array.from(selectedAccounts);
-    if (users.length > 0) openDeleteDialog(users);
-  });
+function openCredentialsDialog(username, password, isRandom) {
+  dialogBox.innerHTML = `
+    <div class="dialog-title">Account Created</div>
+    <div class="dialog-text">
+      ${isRandom ? 'A secure random password was generated.' : 'Account is ready.'}
+      Please copy the credentials now. For security reasons, the password will not be shown again.
+    </div>
 
-  /* ---------- Logout ---------- */
-  logoutLink.addEventListener('click', () => {
-    clearSession();
-    ownerUsername = "";
-    orgNamespace = "";
-    accountCache = [];
-    showLogin();
-  });
+    <div class="dialog-input-group">
+      <label>Username</label>
+      <input type="text" class="dialog-input mono" value="${username}" readonly>
+    </div>
 
-  /* ---------- Boot ---------- */
-  (function boot() {
-    const session = getStoredSession();
-    if (session) enterApp();
-    else showLogin();
-  })();
+    <div class="dialog-input-group">
+      <label>Password</label>
+      <input type="text" class="dialog-input mono" value="${password}" readonly>
+    </div>
+
+    <div class="dialog-actions">
+      <button class="btn-primary" id="copyCredsBtn">Copy Credentials</button>
+      <button class="btn-primary main" id="acceptCredsBtn">I've saved them</button>
+    </div>
+  `;
+  dialogOverlay.classList.add('active');
+
+  document.getElementById('copyCredsBtn').onclick = () => {
+    const text = `Username: ${username}\nPassword: ${password}`;
+    navigator.clipboard.writeText(text).then(() => {
+      toast('Credentials copied to clipboard');
+    });
+  };
+
+  document.getElementById('acceptCredsBtn').onclick = () => {
+    fetchAccounts();
+    closeDialog();
+  };
+}
+
+function openRerollDialog(username) {
+  dialogBox.innerHTML = `
+    <div class="dialog-title">Reroll Password</div>
+    <div class="dialog-text">
+      Are you sure you want to generate a new password for <strong>${username}</strong>?
+      The old password will immediately stop working.
+    </div>
+    <div class="dialog-actions">
+      <button class="btn-primary" id="cancelDialog">Cancel</button>
+      <button class="btn-primary main" id="confirmReroll">Generate New Password</button>
+    </div>
+  `;
+  dialogOverlay.classList.add('active');
+
+  document.getElementById('cancelDialog').onclick = closeDialog;
+  document.getElementById('confirmReroll').onclick = async () => {
+    try {
+      setStatus('loading');
+      const res = await apiCall({
+        action: 'reroll_password',
+        targetUsername: username
+      });
+      openNewPasswordDialog(res.username, res.newPassword);
+    } catch(e) {
+      toast(e.message, 'error');
+      setStatus('ready');
+    }
+  };
+}
+
+function openNewPasswordDialog(username, newPassword) {
+  dialogBox.innerHTML = `
+    <div class="dialog-title">Password Updated</div>
+    <div class="dialog-text">
+      The password for <strong>${username}</strong> has been rerolled. Copy the new password now.
+    </div>
+    <div class="dialog-input-group">
+      <label>New Password</label>
+      <input type="text" class="dialog-input mono" value="${newPassword}" readonly>
+    </div>
+    <div class="dialog-actions">
+      <button class="btn-primary" id="copyPassBtn">Copy Password</button>
+      <button class="btn-primary main" id="closeDialogBtn">Done</button>
+    </div>
+  `;
+  dialogOverlay.classList.add('active');
+  setStatus('saved');
+
+  document.getElementById('copyPassBtn').onclick = () => {
+    navigator.clipboard.writeText(newPassword).then(() => {
+      toast('Password copied to clipboard');
+    });
+  };
+  document.getElementById('closeDialogBtn').onclick = closeDialog;
+}
+
+function openDeleteDialog(usernames) {
+  const isMultiple = usernames.length > 1;
+  dialogBox.innerHTML = `
+    <div class="dialog-title">Delete ${isMultiple ? 'Accounts' : 'Account'}</div>
+    <div class="dialog-text">
+      You are about to delete ${isMultiple ? `${usernames.length} accounts` : `<strong>${usernames[0]}</strong>`}.
+      This action cannot be undone.
+    </div>
+    <div class="dialog-actions">
+      <button class="btn-primary" id="cancelDialog">Cancel</button>
+      <button class="btn-primary destructive" id="confirmDelete">Delete</button>
+    </div>
+  `;
+  dialogOverlay.classList.add('active');
+
+  document.getElementById('cancelDialog').onclick = closeDialog;
+  document.getElementById('confirmDelete').onclick = async () => {
+    try {
+      setStatus('loading');
+      if (isMultiple) {
+        const res = await apiCall({
+          action: 'delete_multiple',
+          targetUsernames: usernames
+        });
+        toast(`Deleted ${res.deletedCount} accounts`);
+      } else {
+        await apiCall({
+          action: 'delete_account',
+          targetUsername: usernames[0]
+        });
+        toast(`Deleted ${usernames[0]}`);
+      }
+
+      fetchAccounts();
+      closeDialog();
+    } catch(e) {
+      toast(e.message, 'error');
+    } finally {
+      setStatus('saved');
+    }
+  };
+}
+
+bulkDeleteBtn.addEventListener('click', () => {
+  const users = Array.from(selectedAccounts);
+  if (users.length > 0) openDeleteDialog(users);
+});
+
+logoutLink.addEventListener('click', () => {
+  clearSession();
+  ownerUsername = "";
+  orgNamespace = "";
+  accountCache = [];
+  showLogin();
+});
+
+(function boot() {
+  const session = getStoredSession();
+  if (session) enterApp();
+  else showLogin();
+})();
 </script>
 
 <script>
-/* ---------- Dark / Light theme switch ---------- */
 (function () {
   var root = document.documentElement;
   var toggles = document.querySelectorAll('[data-theme-toggle]');
