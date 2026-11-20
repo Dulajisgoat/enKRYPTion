@@ -1446,16 +1446,10 @@
       clip-path: circle(150vmax at var(--ox, 50%) var(--oy, 50%));
       transition: clip-path 1300ms cubic-bezier(0.4, 0, 0.1, 1), visibility 0s;
     }
-    .inside-inner { width: 100%; height: 100%; }
-    .inside-inner > * { opacity: 0; }
-    .key-page.entered .inside-inner > * {
-      animation: riseIn 900ms var(--ease-out-expo) both;
-      animation-delay: calc(650ms + var(--d, 0) * 90ms);
-    }
-    .inside-key-stage { position: relative; width: 100%; height: 100%; overflow: hidden; touch-action: none; }
+    .inside-stage { position: absolute; inset: 0; overflow: hidden; touch-action: none; }
     .inside-lock {
-      position: absolute; top: 20px; right: 20px; z-index: 4;
-      flex: none; padding: 10px 22px;
+      position: absolute; top: 20px; right: 20px; z-index: 3;
+      flex: none; padding: 10px 20px;
     }
 
     @media (max-width: 520px) {
@@ -1562,20 +1556,18 @@
   </main>
 
   <section class="inside" id="inside" aria-hidden="true">
-    <div class="inside-inner">
-      <button type="button" class="btn-auth btn-auth-secondary inside-lock" id="lockBtn">Lock vault</button>
-      <div class="inside-key-stage" id="insideKeyStage">
-        <div class="key" id="insideKey" tabindex="0" role="img" aria-label="A key. Drag it, or use the arrow keys, to move it.">
-          <div class="key-art" id="insideKeyArt">
-            <span class="key-bow"></span>
-            <span class="key-shaft"></span>
-            <span class="key-tooth t1"></span>
-            <span class="key-tooth t2"></span>
-            <span class="key-tooth t3"></span>
-          </div>
+    <button type="button" class="btn-auth btn-auth-secondary inside-lock" id="lockBtn">Lock vault</button>
+    <div class="inside-stage" id="insideStage">
+      <div class="key" id="insideKey" tabindex="0" role="img" aria-label="A key. Drag it, or use the arrow keys, to move it.">
+        <div class="key-art" id="insideKeyArt">
+          <span class="key-bow"></span>
+          <span class="key-shaft"></span>
+          <span class="key-tooth t1"></span>
+          <span class="key-tooth t2"></span>
+          <span class="key-tooth t3"></span>
         </div>
-        <p class="key-hint" id="insideKeyHint">Drag the key anywhere</p>
       </div>
+      <p class="key-hint" id="insideKeyHint">Drag the key anywhere</p>
     </div>
   </section>
 </div>
@@ -1594,7 +1586,6 @@ const usernameInput = $('username'), passwordInput = $('password');
 const registerBtn = $('registerBtn'), loginBtn = $('loginBtn');
 const keyEl = $('key'), keyArt = $('keyArt'), keyStage = $('keyStage'), keyHint = $('keyHint');
 const vaultEl = $('vault'), holeEl = $('vaultHole'), insideEl = $('inside'), lockBtn = $('lockBtn');
-const insideKeyEl = $('insideKey'), insideKeyArt = $('insideKeyArt'), insideKeyStage = $('insideKeyStage'), insideKeyHint = $('insideKeyHint');
 
 /* ---------- session (username only) ---------- */
 function getStoredUsername() { try { return localStorage.getItem('username'); } catch { return null; } }
@@ -1612,7 +1603,6 @@ function enterApp(username) {
   loginScreen.classList.add('hidden');
   appEl.style.display = 'flex';
   resetVault();
-  placeInsideKey();
 }
 
 function showLogin() {
@@ -1774,6 +1764,7 @@ async function unlock() {
   appEl.classList.add('zooming');
   if (!(await sleep(750, tok))) return;
   appEl.classList.add('entered');
+  placeInsideKey();
   if (!(await sleep(1300, tok))) return;
 
   state = 'open';
@@ -1853,49 +1844,50 @@ window.addEventListener('resize', () => {
   hole = holePoint();
 });
 
-/* ---------- inside: free-roaming draggable key ---------- */
-const I_KEY_W = 240, I_KEY_H = 84, I_REST = -18, I_POS_KEY = 'enkryption-key-pos';
-let ikx = 0, iky = 0, idrag = null, iangle = I_REST, itarget = I_REST, iraf = 0;
+/* ---------- inside: draggable key (dashboard UI shown once the vault opens) ---------- */
+const insideKeyEl = $('insideKey'), insideKeyArt = $('insideKeyArt'), insideStage = $('insideStage'), insideKeyHint = $('insideKeyHint');
+const INSIDE_KEY_W = 240, INSIDE_KEY_H = 84, INSIDE_REST = -18, INSIDE_POS_KEY = 'enkryption-inside-key-pos';
+let ikx = 0, iky = 0, idrag = null, iangle = INSIDE_REST, itarget = INSIDE_REST, iraf = 0;
 
-const iRangeX = () => Math.max(0, insideKeyStage.clientWidth - I_KEY_W);
-const iRangeY = () => Math.max(0, insideKeyStage.clientHeight - I_KEY_H);
+const irangeX = () => Math.max(0, insideStage.clientWidth - INSIDE_KEY_W);
+const irangeY = () => Math.max(0, insideStage.clientHeight - INSIDE_KEY_H);
 
 function iApplyPos() {
-  ikx = clamp(ikx, 0, iRangeX());
-  iky = clamp(iky, 0, iRangeY());
+  ikx = clamp(ikx, 0, irangeX());
+  iky = clamp(iky, 0, irangeY());
   insideKeyEl.style.transform = `translate3d(${ikx}px, ${iky}px, 0)`;
 }
 function placeInsideKey() {
   let saved = null;
-  try { saved = JSON.parse(localStorage.getItem(I_POS_KEY)); } catch {}
-  ikx = (saved ? saved.fx : 0.5) * iRangeX();
-  iky = (saved ? saved.fy : 0.5) * iRangeY();
-  iangle = itarget = I_REST;
-  insideKeyArt.style.transform = `rotate(${I_REST}deg)`;
+  try { saved = JSON.parse(localStorage.getItem(INSIDE_POS_KEY)); } catch {}
+  ikx = (saved ? saved.fx : 0.5) * irangeX();
+  iky = (saved ? saved.fy : 0.5) * irangeY();
+  iangle = itarget = INSIDE_REST;
+  insideKeyArt.style.transform = `rotate(${INSIDE_REST}deg)`;
   insideKeyHint.classList.toggle('gone', !!saved);
   iApplyPos();
 }
-function iSavePos() {
-  const fx = iRangeX() ? ikx / iRangeX() : 0.5, fy = iRangeY() ? iky / iRangeY() : 0.5;
-  try { localStorage.setItem(I_POS_KEY, JSON.stringify({ fx, fy })); } catch {}
+function saveInsidePos() {
+  const fx = irangeX() ? ikx / irangeX() : 0.5, fy = irangeY() ? iky / irangeY() : 0.5;
+  try { localStorage.setItem(INSIDE_POS_KEY, JSON.stringify({ fx, fy })); } catch {}
 }
 
 function iTick() {
   iangle += (itarget - iangle) * 0.14;
-  itarget += (I_REST - itarget) * 0.08;
+  itarget += (INSIDE_REST - itarget) * 0.08;
   insideKeyArt.style.transform = `rotate(${iangle}deg)`;
-  const settled = Math.abs(iangle - I_REST) < 0.05 && Math.abs(itarget - I_REST) < 0.05;
+  const settled = Math.abs(iangle - INSIDE_REST) < 0.05 && Math.abs(itarget - INSIDE_REST) < 0.05;
   iraf = (idrag || !settled) ? requestAnimationFrame(iTick) : 0;
 }
 function iSway(delta) {
   if (reduceMotion) return;
-  itarget = clamp(itarget + delta, I_REST - 18, I_REST + 18);
+  itarget = clamp(itarget + delta, INSIDE_REST - 18, INSIDE_REST + 18);
   if (!iraf) iraf = requestAnimationFrame(iTick);
 }
 
 insideKeyEl.addEventListener('pointerdown', (e) => {
   if (e.pointerType === 'mouse' && e.button !== 0) return;
-  const r = insideKeyStage.getBoundingClientRect();
+  const r = insideStage.getBoundingClientRect();
   idrag = { l: r.left, t: r.top, ox: e.clientX - r.left - ikx, oy: e.clientY - r.top - iky, last: e.clientX };
   insideKeyEl.setPointerCapture(e.pointerId);
   insideKeyEl.classList.add('dragging');
@@ -1910,14 +1902,14 @@ insideKeyEl.addEventListener('pointermove', (e) => {
   iSway((e.clientX - idrag.last) * 0.9);
   idrag.last = e.clientX;
 });
-const iEndDrag = () => {
+const endInsideDrag = () => {
   if (!idrag) return;
   idrag = null;
   insideKeyEl.classList.remove('dragging');
-  iSavePos();
+  saveInsidePos();
 };
-insideKeyEl.addEventListener('pointerup', iEndDrag);
-insideKeyEl.addEventListener('pointercancel', iEndDrag);
+insideKeyEl.addEventListener('pointerup', endInsideDrag);
+insideKeyEl.addEventListener('pointercancel', endInsideDrag);
 
 insideKeyEl.addEventListener('keydown', (e) => {
   const step = e.shiftKey ? 48 : 16;
@@ -1925,10 +1917,10 @@ insideKeyEl.addEventListener('keydown', (e) => {
   if (!moves[e.key]) return;
   e.preventDefault();
   ikx += moves[e.key][0]; iky += moves[e.key][1];
-  iApplyPos(); iSavePos(); insideKeyHint.classList.add('gone');
+  iApplyPos(); saveInsidePos(); insideKeyHint.classList.add('gone');
   iSway(moves[e.key][0] * 0.3);
 });
-window.addEventListener('resize', iApplyPos);
+window.addEventListener('resize', () => { if (state === 'open') iApplyPos(); });
 
 /* ---------- sign out + boot ---------- */
 const logoutLink = $('logoutLink');
