@@ -1244,6 +1244,10 @@
       from { opacity: 0; translate: 0 -56px; scale: 0.92; }
       to   { opacity: 1; translate: 0 0; scale: 1; }
     }
+    @keyframes holePulse {
+      from { box-shadow: 0 0 0 3px rgba(255,255,255,0.85), 0 0 0 4px var(--line), 0 0 0 4px rgba(var(--fg-rgb), 0.28); }
+      to   { box-shadow: 0 0 0 3px rgba(255,255,255,0.85), 0 0 0 4px var(--line), 0 0 0 30px rgba(var(--fg-rgb), 0); }
+    }
     .key-page {
       position: fixed; inset: 0; z-index: 1;
       display: none; flex-direction: column;
@@ -1254,15 +1258,147 @@
       height: 56px; padding: 0 20px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: space-between; gap: 16px;
       border-bottom: 1px solid var(--line-soft);
+      position: relative; z-index: 7; background: var(--panel);
     }
     .key-bar-right { display: flex; align-items: center; gap: 20px; min-width: 0; }
     .key-stage { position: relative; flex: 1; overflow: hidden; touch-action: none; }
+
+    /* ---------- vault ---------- */
+    .vault-scene {
+      position: absolute; inset: 0; z-index: 1;
+      display: grid; place-items: center;
+      transform-origin: 50% 50%;
+      transition: transform 1100ms cubic-bezier(0.5, 0, 0.2, 1);
+      pointer-events: none;
+    }
+    .key-page.zooming .vault-scene {
+      transform: scale(7);
+      transition-duration: 1500ms;
+      transition-timing-function: cubic-bezier(0.6, 0, 0.2, 1);
+    }
+    .vault {
+      --v: min(66vmin, 440px);
+      position: relative; width: var(--v); height: var(--v);
+      perspective: 2400px;
+      animation: riseIn 900ms var(--ease-out-expo) 120ms both;
+    }
+    .vault-frame {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: radial-gradient(circle at 32% 24%, #ffffff 0%, #ececec 55%, #d2d2d2 100%);
+      box-shadow:
+        0 40px 70px -24px rgba(var(--shadow-rgb), 0.3),
+        0 0 0 1px var(--line),
+        inset 0 2px 0 rgba(255, 255, 255, 0.95),
+        inset 0 0 0 14px #f6f6f6,
+        inset 0 0 0 15px var(--line);
+    }
+    .vault-inside {
+      position: absolute; inset: 7%; border-radius: 50%; overflow: hidden;
+      background: radial-gradient(circle at 50% 50%, #3b3b3b 0%, #161616 55%, #0a0a0a 100%);
+      box-shadow: inset 0 0 46px rgba(0, 0, 0, 0.75);
+    }
+    .vault-inside::before {
+      content: ''; position: absolute; inset: 0;
+      background: repeating-radial-gradient(circle at 50% 50%, transparent 0 22px, rgba(255,255,255,0.05) 22px 23px);
+    }
+    .vault-inside::after {
+      content: ''; position: absolute; left: 50%; top: 50%; width: 46%; height: 46%;
+      transform: translate(-50%, -50%); border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.95), rgba(255,255,255,0) 68%);
+      opacity: 0;
+      transition: opacity 1200ms var(--ease-out-expo) 250ms;
+    }
+    .vault.open .vault-inside::after { opacity: 0.6; }
+
+    .vault-door {
+      position: absolute; inset: 7%; border-radius: 50%;
+      transform-origin: 0% 50%;
+      transition: transform 1300ms cubic-bezier(0.65, 0, 0.25, 1);
+      background: radial-gradient(circle at 34% 26%, #ffffff 0%, #e9e9e9 50%, #cbcbcb 100%);
+      box-shadow:
+        0 0 0 1px var(--line),
+        inset 0 0 0 8px rgba(255, 255, 255, 0.65),
+        inset 0 0 0 9px var(--line-soft),
+        16px 12px 34px -12px rgba(var(--shadow-rgb), 0.4);
+      will-change: transform;
+    }
+    .vault.open .vault-door { transform: rotateY(-78deg); }
+    .vault-door::before {
+      content: ''; position: absolute; inset: 9%; border-radius: 50%;
+      border: 1px solid var(--line);
+      box-shadow: inset 0 0 0 6px rgba(255, 255, 255, 0.5), inset 0 0 0 7px var(--line-soft);
+    }
+    .vault-door::after {
+      content: ''; position: absolute; inset: 24%; border-radius: 50%;
+      border: 1px solid var(--line);
+    }
+    .vault-bolts { position: absolute; inset: 0; }
+    .vault-bolts i {
+      --s: calc(var(--v) * 0.045);
+      position: absolute; left: 50%; top: 50%;
+      width: var(--s); height: var(--s); margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #ffffff, #bdbdbd);
+      box-shadow: 0 0 0 1px var(--line), 0 2px 3px rgba(var(--shadow-rgb), 0.25);
+      transform: rotate(calc(var(--i) * 30deg)) translateY(calc(var(--v) * -0.385));
+      transition: transform 800ms var(--ease-out-expo) calc(var(--i) * 32ms);
+    }
+    .vault.unlocked .vault-bolts i {
+      transform: rotate(calc(var(--i) * 30deg)) translateY(calc(var(--v) * -0.33)) scale(0.55);
+    }
+
+    .vault-dial {
+      position: absolute; left: 50%; top: 50%; width: 30%; height: 30%; margin: -15% 0 0 -15%;
+      isolation: isolate;
+      transition: transform 1100ms cubic-bezier(0.65, 0, 0.25, 1);
+    }
+    .vault.unlocked .vault-dial { transform: rotate(-300deg); }
+    .spoke {
+      position: absolute; left: 50%; top: 50%; width: 11%; height: 172%;
+      margin: -86% 0 0 -5.5%; z-index: 0; border-radius: 99px;
+      transform: rotate(var(--r));
+      background: linear-gradient(90deg, #c4c4c4, #ffffff 45%, #b8b8b8);
+      box-shadow: 0 0 0 1px var(--line);
+    }
+    .dial-face {
+      position: absolute; inset: 0; z-index: 1; border-radius: 50%;
+      background: radial-gradient(circle at 36% 28%, #ffffff, #dcdcdc 70%, #c4c4c4);
+      box-shadow:
+        0 0 0 1px var(--line),
+        0 8px 16px rgba(var(--shadow-rgb), 0.22),
+        inset 0 0 0 6px rgba(255, 255, 255, 0.7),
+        inset 0 0 0 7px var(--line-soft);
+    }
+    .vault-keyhole {
+      --near: 0;
+      position: absolute; left: 50%; top: 50%; width: 44%; height: 44%; margin: -22% 0 0 -22%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 30%, #3a3a3a, #0f0f0f);
+      box-shadow:
+        0 0 0 3px rgba(255, 255, 255, 0.85),
+        0 0 0 4px var(--line),
+        0 0 0 calc(4px + var(--near) * 12px) rgba(var(--fg-rgb), calc(var(--near) * 0.16));
+      transition: box-shadow 180ms var(--ease-standard);
+    }
+    .vault-keyhole::before {
+      content: ''; position: absolute; left: 20%; top: 50%; width: 30%; height: 30%;
+      transform: translateY(-50%); border-radius: 50%; background: #f4f4f4;
+    }
+    .vault-keyhole::after {
+      content: ''; position: absolute; left: 42%; top: 50%; width: 36%; height: 12%;
+      transform: translateY(-50%); border-radius: 0 3px 3px 0; background: #f4f4f4;
+    }
+    .vault.clicked .vault-keyhole { animation: holePulse 800ms var(--ease-out-expo) both; }
+
+    /* ---------- key ---------- */
     .key {
-      position: absolute; left: 0; top: 0; width: 240px; height: 84px;
+      position: absolute; left: 0; top: 0; width: 240px; height: 84px; z-index: 5;
       cursor: grab; user-select: none; -webkit-user-select: none;
       touch-action: none; will-change: transform; outline: none;
+      transition: opacity 420ms var(--ease-standard);
     }
     .key.dragging { cursor: grabbing; }
+    .key.used { opacity: 0; pointer-events: none; }
     .key-art {
       position: absolute; inset: 0; transform-origin: 42px 42px;
       filter: drop-shadow(0 14px 16px rgba(var(--shadow-rgb), 0.45));
@@ -1271,6 +1407,12 @@
     }
     .key.dragging .key-art { filter: drop-shadow(0 28px 26px rgba(var(--shadow-rgb), 0.5)); }
     .key:focus-visible .key-art { outline: var(--focus-ring); outline-offset: 14px; border-radius: 12px; }
+    .key-spin {
+      position: absolute; inset: 0; transform-origin: 50% 42px;
+      transform: perspective(700px) rotateX(0deg);
+      transition: transform 560ms cubic-bezier(0.65, 0, 0.35, 1);
+    }
+    .key.turning .key-spin { transform: perspective(700px) rotateX(90deg); }
     .key-bow {
       position: absolute; left: 0; top: 0; width: 84px; height: 84px;
       border-radius: 50%; border: 16px solid var(--fg);
@@ -1284,14 +1426,58 @@
     .key-tooth.t2 { left: 184px; height: 15px; }
     .key-tooth.t3 { left: 214px; height: 26px; }
     .key-hint {
-      position: absolute; left: 0; right: 0; bottom: 28px; text-align: center;
+      position: absolute; left: 0; right: 0; bottom: 28px; text-align: center; z-index: 3;
       font-size: 13px; color: var(--text-muted); pointer-events: none;
       transition: opacity 500ms var(--ease-standard);
     }
     .key-hint.gone { opacity: 0; }
+
+    /* ---------- inside ---------- */
+    .inside {
+      position: absolute; left: 0; right: 0; top: 56px; bottom: 0; z-index: 6;
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+      overflow: auto; background: var(--panel);
+      visibility: hidden; pointer-events: none;
+      clip-path: circle(0px at var(--ox, 50%) var(--oy, 50%));
+      transition: clip-path 900ms cubic-bezier(0.5, 0, 0.2, 1), visibility 0s linear 900ms;
+    }
+    .key-page.entered .inside {
+      visibility: visible; pointer-events: auto;
+      clip-path: circle(150vmax at var(--ox, 50%) var(--oy, 50%));
+      transition: clip-path 1300ms cubic-bezier(0.4, 0, 0.1, 1), visibility 0s;
+    }
+    .inside-inner { width: min(620px, 100%); text-align: center; }
+    .inside-inner > * { opacity: 0; }
+    .key-page.entered .inside-inner > * {
+      animation: riseIn 900ms var(--ease-out-expo) both;
+      animation-delay: calc(650ms + var(--d, 0) * 90ms);
+    }
+    .inside-eyebrow {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .inside-title {
+      margin-top: 14px; font-size: clamp(28px, 5vw, 42px); font-weight: 600;
+      letter-spacing: -0.02em; line-height: 1.1; color: var(--text);
+    }
+    .inside-sub { margin-top: 14px; font-size: 15px; color: var(--text-soft); }
+    .inside-card {
+      margin: 34px 0 30px; padding: 34px 20px; border: 1px dashed var(--line); border-radius: 12px;
+      font-size: 13px; color: var(--text-muted);
+    }
+    .inside-lock { flex: none; padding: 14px 30px; }
+
     @media (max-width: 520px) {
       .key-bar { padding: 0 14px; }
       .key-bar-right { gap: 14px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .key-page *, .key-page *::before, .key-page *::after {
+        animation-duration: 0.001ms !important;
+        animation-delay: 0ms !important;
+        transition-duration: 0.001ms !important;
+        transition-delay: 0ms !important;
+      }
     }
 </style>
 </head>
@@ -1354,17 +1540,45 @@
   </header>
 
   <main class="key-stage" id="keyStage">
-    <div class="key" id="key" tabindex="0" role="img" aria-label="A key. Drag it, or use the arrow keys, to move it.">
-      <div class="key-art" id="keyArt">
-        <span class="key-bow"></span>
-        <span class="key-shaft"></span>
-        <span class="key-tooth t1"></span>
-        <span class="key-tooth t2"></span>
-        <span class="key-tooth t3"></span>
+    <div class="vault-scene" aria-hidden="true">
+      <div class="vault" id="vault">
+        <div class="vault-frame"></div>
+        <div class="vault-inside"></div>
+        <div class="vault-door">
+          <div class="vault-bolts" id="vaultBolts"></div>
+          <div class="vault-dial">
+            <i class="spoke" style="--r:0deg"></i>
+            <i class="spoke" style="--r:60deg"></i>
+            <i class="spoke" style="--r:120deg"></i>
+            <div class="dial-face"><span class="vault-keyhole" id="vaultHole"></span></div>
+          </div>
+        </div>
       </div>
     </div>
-    <p class="key-hint" id="keyHint">Drag the key anywhere</p>
+
+    <div class="key" id="key" tabindex="0" role="img" aria-label="A key. Drag it to the vault's keyhole, or press Enter to unlock the vault.">
+      <div class="key-art" id="keyArt">
+        <div class="key-spin">
+          <span class="key-bow"></span>
+          <span class="key-shaft"></span>
+          <span class="key-tooth t1"></span>
+          <span class="key-tooth t2"></span>
+          <span class="key-tooth t3"></span>
+        </div>
+      </div>
+    </div>
+    <p class="key-hint" id="keyHint">Drag the key to the vault</p>
   </main>
+
+  <section class="inside" id="inside" aria-hidden="true" aria-labelledby="insideTitle">
+    <div class="inside-inner">
+      <p class="inside-eyebrow" style="--d:0">Vault unlocked</p>
+      <h1 class="inside-title" id="insideTitle" style="--d:1">Welcome in, <span id="insideName">user</span></h1>
+      <p class="inside-sub" style="--d:2">Your vault is open. Everything you store here stays behind the door.</p>
+      <div class="inside-card" style="--d:3">Nothing here yet.</div>
+      <button type="button" class="btn-auth btn-auth-secondary inside-lock" id="lockBtn" style="--d:4">Lock vault</button>
+    </div>
+  </section>
 </div>
 
 <div class="toast-container" id="toastContainer"></div>
@@ -1380,6 +1594,7 @@ const loginScreen = $('loginScreen'), appEl = $('app'), messageEl = $('message')
 const usernameInput = $('username'), passwordInput = $('password');
 const registerBtn = $('registerBtn'), loginBtn = $('loginBtn');
 const keyEl = $('key'), keyArt = $('keyArt'), keyStage = $('keyStage'), keyHint = $('keyHint');
+const vaultEl = $('vault'), holeEl = $('vaultHole'), insideEl = $('inside'), lockBtn = $('lockBtn');
 
 /* ---------- session (username only) ---------- */
 function getStoredUsername() { try { return localStorage.getItem('username'); } catch { return null; } }
@@ -1394,9 +1609,10 @@ function showLoginMessage(text, type = 'error') {
 function enterApp(username) {
   $('footerUsername').textContent = username;
   $('userGlyph').textContent = username.charAt(0).toUpperCase();
+  $('insideName').textContent = username;
   loginScreen.classList.add('hidden');
   appEl.style.display = 'flex';
-  placeKey();
+  resetVault();
 }
 
 function showLogin() {
@@ -1450,14 +1666,30 @@ registerBtn.addEventListener('click', (e) => { e.preventDefault(); auth('login')
 loginBtn.addEventListener('click', (e) => { e.preventDefault(); auth('login'); });
 $('authForm').addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); auth('login'); } });
 
-/* ---------- draggable key ---------- */
-const KEY_W = 240, KEY_H = 84, REST = -18, POS_KEY = 'enkryption-key-pos';
+/* ---------- vault + draggable key ---------- */
+const KEY_W = 240, KEY_H = 84, REST = -18;
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let kx = 0, ky = 0, drag = null, angle = REST, target = REST, raf = 0;
+let state = 'locked', run = 0, hole = { x: 0, y: 0 };
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const rangeX = () => Math.max(0, keyStage.clientWidth - KEY_W);
 const rangeY = () => Math.max(0, keyStage.clientHeight - KEY_H);
+const sleep = (ms, tok) => new Promise((r) => setTimeout(() => r(tok === run), reduceMotion ? 0 : ms));
+
+$('vaultBolts').innerHTML = Array.from({ length: 12 }, (_, i) => `<i style="--i:${i}"></i>`).join('');
+
+function holePoint() {
+  const s = keyStage.getBoundingClientRect(), h = holeEl.getBoundingClientRect();
+  return { x: h.left - s.left + h.width / 2, y: h.top - s.top + h.height / 2 };
+}
+function distToHole() {
+  const a = angle * Math.PI / 180;
+  const tx = kx + 42 + 198 * Math.cos(a), ty = ky + 42 + 198 * Math.sin(a);
+  const d = Math.hypot(hole.x - tx, hole.y - ty);
+  vaultEl.style.setProperty('--near', clamp(1 - d / 170, 0, 1).toFixed(3));
+  return d;
+}
 
 function applyPos() {
   kx = clamp(kx, 0, rangeX());
@@ -1465,18 +1697,28 @@ function applyPos() {
   keyEl.style.transform = `translate3d(${kx}px, ${ky}px, 0)`;
 }
 function placeKey() {
-  let saved = null;
-  try { saved = JSON.parse(localStorage.getItem(POS_KEY)); } catch {}
-  kx = (saved ? saved.fx : 0.5) * rangeX();
-  ky = (saved ? saved.fy : 0.5) * rangeY();
+  kx = Math.max(10, rangeX() * 0.06);
+  ky = rangeY() - 36;
   angle = target = REST;
   keyArt.style.transform = `rotate(${REST}deg)`;
-  keyHint.classList.toggle('gone', !!saved);
+  keyArt.style.animation = 'none'; void keyArt.offsetWidth; keyArt.style.animation = '';
+  keyHint.classList.remove('gone');
   applyPos();
 }
-function savePos() {
-  const fx = rangeX() ? kx / rangeX() : 0.5, fy = rangeY() ? ky / rangeY() : 0.5;
-  try { localStorage.setItem(POS_KEY, JSON.stringify({ fx, fy })); } catch {}
+function resetVault() {
+  run++;
+  state = 'locked';
+  cancelAnimationFrame(raf); raf = 0; drag = null;
+  appEl.classList.remove('zooming', 'entered');
+  vaultEl.classList.remove('clicked', 'unlocked', 'open');
+  vaultEl.style.removeProperty('--near');
+  keyEl.classList.remove('turning', 'used', 'dragging');
+  keyEl.style.transition = 'none'; keyArt.style.transition = 'none';
+  insideEl.setAttribute('aria-hidden', 'true');
+  placeKey();
+  void keyEl.offsetWidth;
+  keyEl.style.transition = ''; keyArt.style.transition = '';
+  hole = holePoint();
 }
 
 function tick() {
@@ -1492,9 +1734,82 @@ function sway(delta) {
   if (!raf) raf = requestAnimationFrame(tick);
 }
 
+/* key -> keyhole -> bolts -> door -> zoom into the inside */
+async function unlock() {
+  if (state !== 'locked') return;
+  state = 'unlocking';
+  const tok = ++run;
+  drag = null;
+  keyEl.classList.remove('dragging');
+  keyHint.classList.add('gone');
+  cancelAnimationFrame(raf); raf = 0;
+  hole = holePoint();
+
+  // glide into the keyhole, straightening out
+  angle = target = 0;
+  keyEl.style.transition = 'transform 560ms var(--ease-out-expo), opacity 420ms var(--ease-standard)';
+  keyArt.style.transition = 'transform 560ms var(--ease-out-expo)';
+  keyEl.style.transform = `translate3d(${hole.x - KEY_W}px, ${hole.y - 42}px, 0)`;
+  keyArt.style.transform = 'rotate(0deg)';
+  vaultEl.style.setProperty('--near', 1);
+  if (!(await sleep(600, tok))) return;
+
+  // turn the key
+  keyEl.classList.add('turning');
+  vaultEl.classList.add('clicked');
+  if (!(await sleep(560, tok))) return;
+
+  // key fades, bolts retract, dial spins
+  keyEl.classList.add('used');
+  vaultEl.classList.add('unlocked');
+  if (!(await sleep(1050, tok))) return;
+
+  // door swings open
+  vaultEl.classList.add('open');
+  if (!(await sleep(1000, tok))) return;
+
+  // fly into the vault, iris open the inside
+  insideEl.style.setProperty('--ox', hole.x + 'px');
+  insideEl.style.setProperty('--oy', hole.y + 'px');
+  appEl.classList.add('zooming');
+  if (!(await sleep(750, tok))) return;
+  appEl.classList.add('entered');
+  if (!(await sleep(1300, tok))) return;
+
+  state = 'open';
+  insideEl.removeAttribute('aria-hidden');
+  lockBtn.focus({ preventScroll: true });
+}
+
+async function lockVault() {
+  if (state !== 'open') return;
+  state = 'locking';
+  const tok = ++run;
+  insideEl.setAttribute('aria-hidden', 'true');
+  appEl.classList.remove('entered', 'zooming');
+  if (!(await sleep(950, tok))) return;
+  vaultEl.classList.remove('open');
+  if (!(await sleep(600, tok))) return;
+  vaultEl.classList.remove('unlocked', 'clicked');
+  if (!(await sleep(900, tok))) return;
+  keyEl.style.transition = 'none'; keyArt.style.transition = 'none';
+  keyEl.classList.remove('turning');
+  placeKey();
+  void keyEl.offsetWidth;
+  keyEl.style.transition = ''; keyArt.style.transition = '';
+  keyEl.classList.remove('used');
+  vaultEl.style.removeProperty('--near');
+  state = 'locked';
+  hole = holePoint();
+  keyEl.focus({ preventScroll: true });
+}
+lockBtn.addEventListener('click', lockVault);
+
 keyEl.addEventListener('pointerdown', (e) => {
+  if (state !== 'locked') return;
   if (e.pointerType === 'mouse' && e.button !== 0) return;
   const r = keyStage.getBoundingClientRect();
+  hole = holePoint();
   drag = { l: r.left, t: r.top, ox: e.clientX - r.left - kx, oy: e.clientY - r.top - ky, last: e.clientX };
   keyEl.setPointerCapture(e.pointerId);
   keyEl.classList.add('dragging');
@@ -1508,26 +1823,35 @@ keyEl.addEventListener('pointermove', (e) => {
   applyPos();
   sway((e.clientX - drag.last) * 0.9);
   drag.last = e.clientX;
+  if (distToHole() < 16) unlock();
 });
 const endDrag = () => {
   if (!drag) return;
   drag = null;
   keyEl.classList.remove('dragging');
-  savePos();
+  if (distToHole() < 70) unlock();
 };
 keyEl.addEventListener('pointerup', endDrag);
 keyEl.addEventListener('pointercancel', endDrag);
 
 keyEl.addEventListener('keydown', (e) => {
+  if (state !== 'locked') return;
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); unlock(); return; }
   const step = e.shiftKey ? 48 : 16;
   const moves = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
   if (!moves[e.key]) return;
   e.preventDefault();
   kx += moves[e.key][0]; ky += moves[e.key][1];
-  applyPos(); savePos(); keyHint.classList.add('gone');
+  applyPos(); keyHint.classList.add('gone');
   sway(moves[e.key][0] * 0.3);
+  hole = holePoint();
+  if (distToHole() < 16) unlock();
 });
-window.addEventListener('resize', applyPos);
+window.addEventListener('resize', () => {
+  if (state !== 'locked') return;
+  applyPos();
+  hole = holePoint();
+});
 
 /* ---------- sign out + boot ---------- */
 const logoutLink = $('logoutLink');
