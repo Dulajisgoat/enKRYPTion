@@ -1435,8 +1435,8 @@
     /* ---------- inside ---------- */
     .inside {
       position: absolute; left: 0; right: 0; top: 56px; bottom: 0; z-index: 6;
-      display: flex; align-items: center; justify-content: center; padding: 24px;
-      overflow: auto; background: var(--panel);
+      display: flex; align-items: stretch; justify-content: stretch; padding: 0;
+      overflow: hidden; background: var(--panel);
       visibility: hidden; pointer-events: none;
       clip-path: circle(0px at var(--ox, 50%) var(--oy, 50%));
       transition: clip-path 900ms cubic-bezier(0.5, 0, 0.2, 1), visibility 0s linear 900ms;
@@ -1446,6 +1446,9 @@
       clip-path: circle(150vmax at var(--ox, 50%) var(--oy, 50%));
       transition: clip-path 1300ms cubic-bezier(0.4, 0, 0.1, 1), visibility 0s;
     }
+    /* dashboard UI nested inside the vault reveal — fills the revealed area */
+    .inside .app { width: 100%; height: 100%; min-height: 0; }
+    .inside .sidebar, .inside .main-area { animation: none; }
     .inside-inner { width: min(620px, 100%); text-align: center; }
     .inside-inner > * { opacity: 0; }
     .key-page.entered .inside-inner > * {
@@ -1571,14 +1574,60 @@
   </main>
 
   <section class="inside" id="inside" aria-hidden="true" aria-labelledby="insideTitle">
-    <div class="inside-inner">
-      <p class="inside-eyebrow" style="--d:0">Vault unlocked</p>
-      <h1 class="inside-title" id="insideTitle" style="--d:1">Welcome in, <span id="insideName">user</span></h1>
-      <p class="inside-sub" style="--d:2">Your vault is open. Everything you store here stays behind the door.</p>
-      <div class="inside-card" style="--d:3">Nothing here yet.</div>
-      <button type="button" class="btn-auth btn-auth-secondary inside-lock" id="lockBtn" style="--d:4">Lock vault</button>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="sidebar-list-head">
+          <span class="sidebar-title" id="insideTitle">Organizations</span>
+          <button class="btn-new" id="newOrgBtn" title="Create Organization" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="org-list" id="orgList">
+          <!-- Orgs dynamically injected here -->
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="footer-row">
+            <button type="button" class="btn-auth btn-auth-secondary" id="lockBtn" style="width:100%;">Lock vault</button>
+          </div>
+          <div class="footer-row">
+            <a class="repo-link" href="https://github.com/Dulajisgoat/enKRYPTion" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+              </svg>
+              <span>enKRYPTion</span>
+            </a>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-area">
+        <div class="main-top-bar">
+          <div class="status-indicator" id="statusIndicator">
+            <span class="status-dot"></span>
+            <span id="statusText">Ready</span>
+          </div>
+          <div class="main-actions">
+            <button class="btn-action primary" id="addAccountBtn">Add Account</button>
+            <button class="btn-action danger" id="bulkDeleteBtn" style="display:none;">Delete Selected</button>
+          </div>
+        </div>
+
+        <div class="main-scroll">
+          <div class="main-inner" id="mainContent">
+            <!-- Dynamic table / empty state injected here -->
+          </div>
+        </div>
+      </main>
     </div>
   </section>
+</div>
+
+<div class="dialog-overlay" id="dialogOverlay">
+  <div class="dialog-box" id="dialogBox"></div>
 </div>
 
 <div class="toast-container" id="toastContainer"></div>
@@ -1609,7 +1658,7 @@ function showLoginMessage(text, type = 'error') {
 function enterApp(username) {
   $('footerUsername').textContent = username;
   $('userGlyph').textContent = username.charAt(0).toUpperCase();
-  $('insideName').textContent = username;
+  currentUsername = username;
   loginScreen.classList.add('hidden');
   appEl.style.display = 'flex';
   resetVault();
@@ -1778,6 +1827,7 @@ async function unlock() {
 
   state = 'open';
   insideEl.removeAttribute('aria-hidden');
+  renderDashboard(currentUsername);
   lockBtn.focus({ preventScroll: true });
 }
 
@@ -1858,6 +1908,330 @@ const logoutLink = $('logoutLink');
 const signOut = () => { clearSession(); showLogin(); };
 logoutLink.addEventListener('click', signOut);
 logoutLink.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); signOut(); } });
+
+/* ---------- dashboard (the UI revealed behind the vault door) ---------- */
+let currentUsername = "";
+let selectedAccounts = new Set();
+
+const orgListEl = $('orgList');
+const mainContentEl = $('mainContent');
+const statusIndicatorEl = $('statusIndicator');
+const statusTextEl = $('statusText');
+const bulkDeleteBtnEl = $('bulkDeleteBtn');
+const addAccountBtnEl = $('addAccountBtn');
+const dialogOverlayEl = $('dialogOverlay');
+const dialogBoxEl = $('dialogBox');
+
+function toast(msg, type = 'success') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  const icon = type === 'success'
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+  el.innerHTML = `${icon}<span></span>`;
+  el.querySelector('span').textContent = msg;
+  $('toastContainer').appendChild(el);
+  setTimeout(() => {
+    el.classList.add('exit');
+    setTimeout(() => el.remove(), 250);
+  }, 3500);
+}
+
+function setStatus(status) {
+  if (status === 'ready') {
+    statusTextEl.textContent = 'Ready';
+    statusIndicatorEl.className = 'status-indicator';
+  } else if (status === 'loading') {
+    statusTextEl.textContent = 'Working…';
+    statusIndicatorEl.className = 'status-indicator loading';
+  } else if (status === 'saved') {
+    statusTextEl.textContent = 'Done';
+    statusIndicatorEl.className = 'status-indicator saved';
+    setTimeout(() => setStatus('ready'), 1800);
+  }
+}
+
+function genRandomPassword(len = 16) {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*';
+  let out = '';
+  const buf = new Uint32Array(len);
+  (window.crypto || window.msCrypto).getRandomValues(buf);
+  for (let i = 0; i < len; i++) out += chars[buf[i] % chars.length];
+  return out;
+}
+
+function storageKey(username) { return `enkryption-accounts:${username}`; }
+function loadAccounts(username) {
+  try { return JSON.parse(localStorage.getItem(storageKey(username)) || '[]'); }
+  catch { return []; }
+}
+function saveAccounts(username, accounts) {
+  try { localStorage.setItem(storageKey(username), JSON.stringify(accounts)); } catch {}
+}
+
+function renderDashboard(username) {
+  if (!username) return;
+  orgListEl.innerHTML = `
+    <div class="org-item active">
+      <span class="org-dot"></span>
+      <div class="org-item-content">
+        <div class="org-item-title">${username}</div>
+        <div class="org-item-sub">Personal Organization</div>
+      </div>
+    </div>
+  `;
+  setStatus('loading');
+  renderAccountsTable(loadAccounts(username));
+  setStatus('ready');
+}
+
+function renderEmptyState() {
+  mainContentEl.innerHTML = `
+    <div class="org-header"><div><div class="org-title">${currentUsername}</div></div></div>
+    <div class="org-meta"><span>Organization</span><span class="dot"></span><span>Active</span></div>
+    <div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      <div class="empty-state-title">No Sub-Accounts Yet</div>
+      <div class="empty-state-text">Create your first sub-account to manage access for this organization.</div>
+    </div>
+  `;
+}
+
+function renderAccountsTable(accounts) {
+  if (!accounts || accounts.length === 0) { renderEmptyState(); return; }
+
+  selectedAccounts.clear();
+  bulkDeleteBtnEl.style.display = 'none';
+
+  const rowsHtml = accounts.map(acc => `
+    <tr>
+      <td class="checkbox-cell"><input type="checkbox" data-user="${acc.username}" class="row-checkbox"></td>
+      <td class="td-username">${acc.username}</td>
+      <td>
+        <div class="row-actions">
+          <button class="btn-row" data-action="reroll" data-user="${acc.username}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            Reroll
+          </button>
+          <button class="btn-row danger" data-action="delete" data-user="${acc.username}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            Delete
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  mainContentEl.innerHTML = `
+    <div class="org-header"><div><div class="org-title">${currentUsername}</div></div></div>
+    <div class="org-meta"><span>Accounts</span><span class="dot"></span><span>${accounts.length} total</span></div>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr>
+          <th class="checkbox-cell"><input type="checkbox" id="selectAll"></th>
+          <th>Username</th>
+          <th style="text-align:right;">Actions</th>
+        </tr></thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+    </div>
+  `;
+  attachTableEventListeners();
+}
+
+function attachTableEventListeners() {
+  document.querySelectorAll('.row-checkbox').forEach(cb => {
+    cb.addEventListener('change', (e) => {
+      const user = e.target.dataset.user;
+      if (e.target.checked) selectedAccounts.add(user); else selectedAccounts.delete(user);
+      updateBulkDeleteBtn();
+    });
+  });
+  const selectAllCb = $('selectAll');
+  if (selectAllCb) {
+    selectAllCb.addEventListener('change', (e) => {
+      document.querySelectorAll('.row-checkbox').forEach(cb => {
+        cb.checked = e.target.checked;
+        if (e.target.checked) selectedAccounts.add(cb.dataset.user); else selectedAccounts.delete(cb.dataset.user);
+      });
+      updateBulkDeleteBtn();
+    });
+  }
+  document.querySelectorAll('.btn-row').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.action, user = btn.dataset.user;
+      if (action === 'reroll') openRerollDialog(user);
+      else if (action === 'delete') openDeleteDialog([user]);
+    });
+  });
+}
+
+function updateBulkDeleteBtn() {
+  if (selectedAccounts.size > 0) {
+    bulkDeleteBtnEl.style.display = 'flex';
+    bulkDeleteBtnEl.textContent = `Delete Selected (${selectedAccounts.size})`;
+  } else {
+    bulkDeleteBtnEl.style.display = 'none';
+  }
+}
+
+function closeDialog() { dialogOverlayEl.classList.remove('active'); }
+dialogOverlayEl.addEventListener('click', (e) => { if (e.target === dialogOverlayEl) closeDialog(); });
+
+addAccountBtnEl.addEventListener('click', () => {
+  dialogBoxEl.innerHTML = `
+    <div class="dialog-title">Add Sub-Account</div>
+    <div class="dialog-text">Create a new account under the <strong>${currentUsername}</strong> organization.</div>
+    <div class="dialog-input-group">
+      <label>Username</label>
+      <input type="text" id="subUsernameInput" class="dialog-input" placeholder="name" autocomplete="off">
+      <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">
+        Final username: <span id="fullUsernamePreview">name@${currentUsername}</span>
+      </div>
+    </div>
+    <div class="dialog-input-group">
+      <label>Password Method</label>
+      <div class="toggle-group">
+        <button class="toggle-btn active" id="randomPassBtn">Generate Random</button>
+        <button class="toggle-btn" id="customPassBtn">Custom Password</button>
+      </div>
+    </div>
+    <div class="dialog-input-group" id="customPassGroup" style="display:none;">
+      <label>Custom Password</label>
+      <input type="text" id="customPassInput" class="dialog-input" placeholder="Min 6 characters">
+    </div>
+    <div class="dialog-actions">
+      <button class="btn-primary" id="cancelDialog">Cancel</button>
+      <button class="btn-primary main" id="confirmAddAccount">Create Account</button>
+    </div>
+  `;
+  dialogOverlayEl.classList.add('active');
+
+  const subInput = $('subUsernameInput');
+  const preview = $('fullUsernamePreview');
+  subInput.addEventListener('input', () => { preview.textContent = `${subInput.value || 'name'}@${currentUsername}`; });
+
+  const randomBtn = $('randomPassBtn'), customBtn = $('customPassBtn'), customPassGroup = $('customPassGroup');
+  randomBtn.onclick = () => { randomBtn.classList.add('active'); customBtn.classList.remove('active'); customPassGroup.style.display = 'none'; };
+  customBtn.onclick = () => { customBtn.classList.add('active'); randomBtn.classList.remove('active'); customPassGroup.style.display = 'block'; };
+
+  $('cancelDialog').onclick = closeDialog;
+  $('confirmAddAccount').onclick = () => {
+    const sub = subInput.value.trim();
+    if (!sub || !/^[a-zA-Z0-9]+$/.test(sub)) { toast('Invalid username. Use only letters and numbers.', 'error'); return; }
+
+    const accounts = loadAccounts(currentUsername);
+    const fullUsername = `${sub}@${currentUsername}`;
+    if (accounts.some(a => a.username === fullUsername)) { toast('That account already exists.', 'error'); return; }
+
+    const useRandom = randomBtn.classList.contains('active');
+    const customPass = $('customPassInput').value;
+    if (!useRandom && customPass.trim().length < 6) { toast('Custom password must be at least 6 characters.', 'error'); return; }
+
+    setStatus('loading');
+    const password = useRandom ? genRandomPassword() : customPass.trim();
+    accounts.push({ username: fullUsername, password });
+    saveAccounts(currentUsername, accounts);
+    setStatus('saved');
+    openCredentialsDialog(fullUsername, password, useRandom);
+  };
+});
+
+function openCredentialsDialog(username, password, isRandom) {
+  dialogBoxEl.innerHTML = `
+    <div class="dialog-title">Account Created</div>
+    <div class="dialog-text">
+      ${isRandom ? 'A secure random password was generated.' : 'Account is ready.'}
+      Please copy the credentials now. For security reasons, the password will not be shown again.
+    </div>
+    <div class="dialog-input-group"><label>Username</label><input type="text" class="dialog-input mono" value="${username}" readonly></div>
+    <div class="dialog-input-group"><label>Password</label><input type="text" class="dialog-input mono" value="${password}" readonly></div>
+    <div class="dialog-actions">
+      <button class="btn-primary" id="copyCredsBtn">Copy Credentials</button>
+      <button class="btn-primary main" id="acceptCredsBtn">I've saved them</button>
+    </div>
+  `;
+  dialogOverlayEl.classList.add('active');
+  $('copyCredsBtn').onclick = () => {
+    navigator.clipboard.writeText(`Username: ${username}\nPassword: ${password}`).then(() => toast('Credentials copied to clipboard'));
+  };
+  $('acceptCredsBtn').onclick = () => { renderAccountsTable(loadAccounts(currentUsername)); closeDialog(); };
+}
+
+function openRerollDialog(username) {
+  dialogBoxEl.innerHTML = `
+    <div class="dialog-title">Reroll Password</div>
+    <div class="dialog-text">Are you sure you want to generate a new password for <strong>${username}</strong>? The old password will immediately stop working.</div>
+    <div class="dialog-actions">
+      <button class="btn-primary" id="cancelDialog">Cancel</button>
+      <button class="btn-primary main" id="confirmReroll">Generate New Password</button>
+    </div>
+  `;
+  dialogOverlayEl.classList.add('active');
+  $('cancelDialog').onclick = closeDialog;
+  $('confirmReroll').onclick = () => {
+    setStatus('loading');
+    const accounts = loadAccounts(currentUsername);
+    const acc = accounts.find(a => a.username === username);
+    if (!acc) { toast('Account not found.', 'error'); setStatus('ready'); return; }
+    acc.password = genRandomPassword();
+    saveAccounts(currentUsername, accounts);
+    openNewPasswordDialog(acc.username, acc.password);
+  };
+}
+
+function openNewPasswordDialog(username, newPassword) {
+  dialogBoxEl.innerHTML = `
+    <div class="dialog-title">Password Updated</div>
+    <div class="dialog-text">The password for <strong>${username}</strong> has been rerolled. Copy the new password now.</div>
+    <div class="dialog-input-group"><label>New Password</label><input type="text" class="dialog-input mono" value="${newPassword}" readonly></div>
+    <div class="dialog-actions">
+      <button class="btn-primary" id="copyPassBtn">Copy Password</button>
+      <button class="btn-primary main" id="closeDialogBtn">Done</button>
+    </div>
+  `;
+  dialogOverlayEl.classList.add('active');
+  setStatus('saved');
+  $('copyPassBtn').onclick = () => navigator.clipboard.writeText(newPassword).then(() => toast('Password copied to clipboard'));
+  $('closeDialogBtn').onclick = closeDialog;
+}
+
+function openDeleteDialog(usernames) {
+  const isMultiple = usernames.length > 1;
+  dialogBoxEl.innerHTML = `
+    <div class="dialog-title">Delete ${isMultiple ? 'Accounts' : 'Account'}</div>
+    <div class="dialog-text">You are about to delete ${isMultiple ? `${usernames.length} accounts` : `<strong>${usernames[0]}</strong>`}. This action cannot be undone.</div>
+    <div class="dialog-actions">
+      <button class="btn-primary" id="cancelDialog">Cancel</button>
+      <button class="btn-primary destructive" id="confirmDelete">Delete</button>
+    </div>
+  `;
+  dialogOverlayEl.classList.add('active');
+  $('cancelDialog').onclick = closeDialog;
+  $('confirmDelete').onclick = () => {
+    setStatus('loading');
+    const remaining = loadAccounts(currentUsername).filter(a => !usernames.includes(a.username));
+    saveAccounts(currentUsername, remaining);
+    toast(isMultiple ? `Deleted ${usernames.length} accounts` : `Deleted ${usernames[0]}`);
+    renderAccountsTable(remaining);
+    closeDialog();
+    setStatus('saved');
+  };
+}
+
+bulkDeleteBtnEl.addEventListener('click', () => {
+  const users = Array.from(selectedAccounts);
+  if (users.length > 0) openDeleteDialog(users);
+});
 
 (function boot() {
   const u = getStoredUsername();
