@@ -1641,9 +1641,15 @@
  * CORS headers — all API calls will fail with a network/CORS error.
  */
 const CONFIG = {
-  FUNCTION_URL: "https://yrktytiqzguciapwlxbb.supabase.co/functions/v1/enkryption",
-  ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlya3R5dGlxemd1Y2lhcHdseGJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxMDEwMDEsImV4cCI6MjExMDY3NzAwMX0.569Zb2Fs3347Y0MDKEHecfwvos6PE8ANZhv7OtWLhQ0"
+  FUNCTION_URL: "YOUR_FUNCTION_URL_HERE",
+  ANON_KEY: "YOUR_ANON_KEY_HERE"
 };
+// HOW TO FILL THE PLACEHOLDERS:
+// 1. FUNCTION_URL: In Supabase Dashboard, project fkkdzwzetthnngolakax, Edge Functions, click enkryption.
+//    Copy its URL. It should look like:
+//    https://fkkdzwzetthnngolakax.supabase.co/functions/v1/enkryption
+// 2. ANON_KEY: In the same project, Settings, API, copy "anon public" key.
+//    Do NOT paste the service_role key here.
 
 const $ = (id) => document.getElementById(id);
 const loginScreen = $('loginScreen'), appEl = $('app'), messageEl = $('message');
