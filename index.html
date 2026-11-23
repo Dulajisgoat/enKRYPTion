@@ -49,7 +49,6 @@
 
       --focus-ring: 2px solid rgba(var(--accent-rgb), 0.55);
 
-      /* ── Motion system ───────────────────────────────────── */
       --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
       --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
       --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -86,17 +85,11 @@
     .mono { font-family: var(--mono); }
     .row-checkbox { cursor: pointer; }
 
-    /* ============================================================
-       SHARED KEYFRAMES — choreographed, layered, materialize
-       ============================================================ */
     @keyframes riseIn {
       from { opacity: 0; transform: translateY(12px); filter: blur(3px); }
       to   { opacity: 1; transform: translateY(0); filter: blur(0); }
     }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes sidebarIn {
       from { opacity: 0; transform: translateX(-10px); filter: blur(3px); }
       to   { opacity: 1; transform: translateX(0); filter: blur(0); }
@@ -122,9 +115,7 @@
       from { opacity: 0; transform: translateY(10px) scale(0.96); filter: blur(3px); }
       to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
     }
-    @keyframes toastOut {
-      to { opacity: 0; transform: translateY(10px) scale(0.96); filter: blur(3px); }
-    }
+    @keyframes toastOut { to { opacity: 0; transform: translateY(10px) scale(0.96); filter: blur(3px); } }
     @keyframes checkPop {
       0%   { transform: scale(0.7); }
       55%  { transform: scale(1.18); }
@@ -151,179 +142,108 @@
       }
     }
 
-    /* ============================================================
-       LOGIN SCREEN
-       ============================================================ */
+    /* LOGIN SCREEN */
     .login-screen {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      z-index: 2000;
-      overflow-y: auto;
-      transition:
-        opacity 420ms var(--ease-out-expo),
-        transform 520ms var(--ease-out-expo),
-        filter 420ms var(--ease-out-expo);
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px; z-index: 2000; overflow-y: auto;
+      transition: opacity 420ms var(--ease-out-expo),
+                  transform 520ms var(--ease-out-expo),
+                  filter 420ms var(--ease-out-expo);
       will-change: opacity, transform, filter;
     }
     .login-screen.hidden {
-      opacity: 0;
-      pointer-events: none;
-      transform: scale(1.015);
-      filter: blur(6px);
+      opacity: 0; pointer-events: none;
+      transform: scale(1.015); filter: blur(6px);
     }
 
     .login-shell {
-      width: 100%;
-      max-width: 420px;
-      margin: auto;
+      width: 100%; max-width: 420px; margin: auto;
       background: var(--panel);
       border: 1px solid var(--panel-edge);
-      border-radius: 16px;
-      padding: 52px 44px 36px;
+      border-radius: 16px; padding: 52px 44px 36px;
       position: relative;
       animation: riseIn 720ms var(--ease-out-expo) both;
       transition: border-color 320ms var(--ease-out-expo);
     }
     .login-shell:hover { border-color: rgba(var(--fg-rgb), 0.12); }
 
-    .login-brand {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+    .login-brand { display: flex; flex-direction: column; align-items: center; }
     .login-glyph {
-      font-family: var(--serif-mark);
-      font-weight: 400;
-      font-size: 72px;
-      line-height: 1;
-      color: var(--fg);
+      font-family: var(--serif-mark); font-weight: 400;
+      font-size: 72px; line-height: 1; color: var(--fg);
       margin-bottom: 18px;
       animation: riseIn 780ms var(--ease-out-expo) 60ms both;
     }
     .login-name {
-      font-size: 32px;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-      color: var(--fg);
-      line-height: 1.2;
+      font-size: 32px; font-weight: 600; letter-spacing: -0.01em;
+      color: var(--fg); line-height: 1.2;
       animation: riseIn 780ms var(--ease-out-expo) 130ms both;
     }
     .login-tagline {
-      font-size: 11px;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      text-align: center;
-      margin: 8px 0 32px;
-      padding-bottom: 0;
-      border-bottom: none;
+      font-size: 11px; letter-spacing: 0.28em;
+      text-transform: uppercase; color: var(--text-muted);
+      text-align: center; margin: 8px 0 32px;
       animation: riseIn 780ms var(--ease-out-expo) 200ms both;
     }
     .login-tagline::after {
-      content: '';
-      display: block;
-      width: 55%;
-      height: 1px;
-      background: rgba(var(--fg-rgb), 0.55);
-      margin: 24px auto 0;
+      content: ''; display: block; width: 55%; height: 1px;
+      background: rgba(var(--fg-rgb), 0.55); margin: 24px auto 0;
       transform-origin: center;
       animation: lineGrow 1000ms var(--ease-out-expo) 420ms both;
     }
-
-    .login-glyph sup,
-    .brand-glyph sup {
-      font-size: 0.40em;
-      line-height: 0;
-      vertical-align: baseline;
-      position: relative;
-      top: -0.90em;
-      margin-left: 3px;
-      letter-spacing: -0.02em;
+    .login-glyph sup, .brand-glyph sup {
+      font-size: 0.40em; line-height: 0; vertical-align: baseline;
+      position: relative; top: -0.90em; margin-left: 3px; letter-spacing: -0.02em;
     }
 
     .login-form-group {
-      margin-bottom: 26px;
-      position: relative;
+      margin-bottom: 26px; position: relative;
       animation: riseIn 700ms var(--ease-out-expo) both;
     }
     .login-form-group:nth-of-type(1) { animation-delay: 280ms; }
     .login-form-group:nth-of-type(2) { animation-delay: 360ms; }
-
     .login-form-group label {
-      display: block;
-      font-size: 11px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      font-weight: 500;
-      margin-bottom: 8px;
+      display: block; font-size: 11px; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--text-muted);
+      font-weight: 500; margin-bottom: 8px;
       transition: color 260ms var(--ease-out-expo);
     }
     .login-form-group:focus-within label { color: var(--text-soft); }
-
     .login-form-group input {
-      width: 100%;
-      background: transparent;
-      border: none;
+      width: 100%; background: transparent; border: none;
       border-bottom: 1px solid rgba(var(--fg-rgb), 0.35);
-      border-radius: 0;
-      padding: 8px 0 10px;
-      font-size: 16px;
-      color: var(--text);
-      outline: none;
+      border-radius: 0; padding: 8px 0 10px;
+      font-size: 16px; color: var(--text); outline: none;
       transition: border-color 260ms var(--ease-out-expo);
     }
     .login-form-group input::placeholder {
       color: rgba(var(--fg-rgb), 0.28);
-      font-style: normal;
       transition: opacity 260ms var(--ease-out-expo);
     }
     .login-form-group input:focus::placeholder { opacity: 0.5; }
-
-    .login-form-group::after,
-    .dialog-input-group::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 1px;
-      background: var(--fg);
-      transform: scaleX(0);
-      transform-origin: center;
+    .login-form-group::after, .dialog-input-group::after {
+      content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+      height: 1px; background: var(--fg);
+      transform: scaleX(0); transform-origin: center;
       transition: transform 520ms var(--ease-out-expo);
       pointer-events: none;
     }
     .login-form-group:focus-within::after,
-    .dialog-input-group:focus-within::after {
-      transform: scaleX(1);
-    }
+    .dialog-input-group:focus-within::after { transform: scaleX(1); }
 
     .login-button-group {
-      display: flex;
-      gap: 12px;
-      margin-top: 34px;
+      display: flex; gap: 12px; margin-top: 34px;
       animation: riseIn 700ms var(--ease-out-expo) 440ms both;
     }
     .btn-auth {
-      flex: 1;
-      padding: 14px 18px;
-      border-radius: 8px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition:
-        background-color var(--t-fast),
-        color var(--t-fast),
-        border-color var(--t-fast),
-        box-shadow 340ms var(--ease-out-expo),
-        transform 260ms var(--ease-spring);
+      flex: 1; padding: 14px 18px; border-radius: 8px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.18em;
+      text-transform: uppercase; cursor: pointer;
+      transition: background-color var(--t-fast), color var(--t-fast),
+                  border-color var(--t-fast),
+                  box-shadow 340ms var(--ease-out-expo),
+                  transform 260ms var(--ease-spring);
       border: 1px solid transparent;
       will-change: transform;
     }
@@ -331,14 +251,12 @@
     .btn-auth:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .btn-auth-primary {
-      background: var(--btn-solid-bg);
-      color: var(--btn-solid-fg);
+      background: var(--btn-solid-bg); color: var(--btn-solid-fg);
       border-color: var(--fg);
       box-shadow: 0 1px 2px rgba(var(--shadow-rgb), 0.3);
     }
     .btn-auth-primary:hover:not(:disabled) {
-      background: var(--btn-solid-hover);
-      border-color: var(--btn-solid-hover);
+      background: var(--btn-solid-hover); border-color: var(--btn-solid-hover);
       box-shadow: 0 8px 24px rgba(var(--fg-rgb), 0.16), 0 1px 2px rgba(var(--shadow-rgb), 0.3);
       transform: translateY(-1px);
     }
@@ -347,15 +265,12 @@
       box-shadow: 0 1px 2px rgba(var(--shadow-rgb), 0.4);
       transition-duration: 90ms;
     }
-
     .btn-auth-secondary {
-      background: transparent;
-      color: var(--btn-outline-fg);
+      background: transparent; color: var(--btn-outline-fg);
       border-color: rgba(var(--fg-rgb), 0.5);
     }
     .btn-auth-secondary:hover:not(:disabled) {
-      border-color: var(--fg);
-      background: rgba(var(--fg-rgb), 0.04);
+      border-color: var(--fg); background: rgba(var(--fg-rgb), 0.04);
       transform: translateY(-1px);
       box-shadow: 0 6px 20px rgba(var(--shadow-rgb), 0.25);
     }
@@ -366,18 +281,13 @@
     }
 
     .login-message {
-      font-size: 12.5px;
-      text-align: center;
-      margin-top: 20px;
-      min-height: 19px;
-      letter-spacing: 0.01em;
+      font-size: 12.5px; text-align: center; margin-top: 20px;
+      min-height: 19px; letter-spacing: 0.01em;
       color: var(--text-muted);
       transition: color 260ms var(--ease-out-expo);
       animation: fadeIn 500ms var(--ease-out-expo) 540ms both;
     }
-    .login-message.error,
-    .login-message.success,
-    .login-message.loading {
+    .login-message.error, .login-message.success, .login-message.loading {
       animation: messageFlash 480ms var(--ease-out-expo);
     }
     .login-message.error { color: var(--error-tone); }
@@ -385,111 +295,63 @@
     .login-message.loading { color: var(--text-soft); }
 
     .login-footer {
-      margin-top: 36px;
-      padding-top: 22px;
+      margin-top: 36px; padding-top: 22px;
       border-top: 1px solid rgba(var(--fg-rgb), 0.08);
       text-align: center;
       animation: fadeIn 560ms var(--ease-out-expo) 620ms both;
     }
-    .powered-by {
-      font-size: 11px;
-      letter-spacing: 0.14em;
-      color: var(--text-muted);
-    }
-    .powered-by .uniclvrpass {
-      color: var(--fg);
-      font-weight: 600;
-    }
+    .powered-by { font-size: 11px; letter-spacing: 0.14em; color: var(--text-muted); }
+    .powered-by .uniclvrpass { color: var(--fg); font-weight: 600; }
     .repo-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
-      text-decoration: none;
-      transition: color var(--t-fast);
-      margin-top: 8px;
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; letter-spacing: 0.08em;
+      color: var(--text-muted); text-decoration: none;
+      transition: color var(--t-fast); margin-top: 8px;
     }
     .repo-link:hover { color: var(--fg); }
     .repo-link:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
     .repo-link svg { width: 13px; height: 13px; flex-shrink: 0; }
 
-    /* ============================================================
-       APP LAYOUT
-       ============================================================ */
+    /* APP LAYOUT */
     .app {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      grid-template-columns: 240px 1fr;
-      height: 100vh;
-      background: var(--panel);
+      position: relative; z-index: 1;
+      display: grid; grid-template-columns: 240px 1fr;
+      height: 100vh; background: var(--panel);
     }
-
     .sidebar {
       background: var(--panel);
       border-right: 1px solid var(--line-soft);
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      overflow: hidden;
+      display: flex; flex-direction: column;
+      height: 100%; overflow: hidden;
       animation: sidebarIn 700ms var(--ease-out-expo) both;
     }
-
     .sidebar-header {
-      height: 48px;
-      padding: 0 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      height: 48px; padding: 0 16px;
+      display: flex; justify-content: space-between; align-items: center;
     }
     .brand { display: flex; align-items: center; gap: 10px; }
     .brand-glyph {
-      font-family: var(--serif-mark);
-      font-weight: 400;
-      font-size: 24px;
-      line-height: 1;
-      color: var(--fg);
+      font-family: var(--serif-mark); font-weight: 400;
+      font-size: 24px; line-height: 1; color: var(--fg);
     }
-    .brand-name {
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-      color: var(--fg);
-    }
-
+    .brand-name { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; color: var(--fg); }
     .sidebar-list-head {
-      padding: 8px 16px;
-      min-height: 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      padding: 8px 16px; min-height: 40px;
+      display: flex; justify-content: space-between; align-items: center;
       border-top: 1px solid var(--line-soft);
       border-bottom: 1px solid var(--line-soft);
     }
-    .sidebar-title {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-muted);
-    }
+    .sidebar-title { font-size: 12px; font-weight: 500; color: var(--text-muted); }
     .btn-new {
-      width: 24px; height: 24px;
-      background: transparent;
-      color: var(--fg);
-      border: 1px solid rgba(var(--fg-rgb), 0.35);
-      cursor: pointer;
-      display: grid; place-items: center;
-      border-radius: 6px;
-      transition:
-        background-color var(--t-fast),
-        border-color var(--t-fast),
-        box-shadow 300ms var(--ease-out-expo),
-        transform 240ms var(--ease-spring);
+      width: 24px; height: 24px; background: transparent;
+      color: var(--fg); border: 1px solid rgba(var(--fg-rgb), 0.35);
+      cursor: pointer; display: grid; place-items: center; border-radius: 6px;
+      transition: background-color var(--t-fast), border-color var(--t-fast),
+                  box-shadow 300ms var(--ease-out-expo),
+                  transform 240ms var(--ease-spring);
     }
     .btn-new:hover {
-      border-color: var(--fg);
-      background: rgba(var(--fg-rgb), 0.04);
+      border-color: var(--fg); background: rgba(var(--fg-rgb), 0.04);
       box-shadow: 0 0 0 4px rgba(var(--fg-rgb), 0.04);
       transform: translateY(-1px);
     }
@@ -503,13 +365,9 @@
     .org-list::-webkit-scrollbar-track { background: transparent; }
 
     .org-item {
-      padding: 9px 16px;
-      cursor: pointer;
+      padding: 9px 16px; cursor: pointer;
       transition: background-color 260ms var(--ease-out-expo);
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      position: relative; display: flex; align-items: center; gap: 10px;
       background: transparent;
       animation: riseIn 540ms var(--ease-out-expo) 160ms both;
     }
@@ -517,141 +375,81 @@
     .org-item.active {
       background: rgba(var(--accent-rgb), 0.08);
       box-shadow: inset 2px 0 0 var(--accent);
-      transition:
-        background-color 360ms var(--ease-out-expo),
-        box-shadow 360ms var(--ease-out-expo);
+      transition: background-color 360ms var(--ease-out-expo),
+                  box-shadow 360ms var(--ease-out-expo);
     }
-
     .org-dot {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--text-muted);
-      flex-shrink: 0;
-      transition:
-        background-color 360ms var(--ease-out-expo),
-        box-shadow 360ms var(--ease-out-expo);
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--text-muted); flex-shrink: 0;
+      transition: background-color 360ms var(--ease-out-expo);
     }
     .org-item.active .org-dot { background: var(--fg); }
-
     .org-item-content { flex: 1; min-width: 0; }
     .org-item-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-soft);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 14px; font-weight: 600; color: var(--text-soft);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       transition: color 260ms var(--ease-out-expo);
     }
     .org-item.active .org-item-title { color: var(--fg); }
     .org-item-sub {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 1px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 11px; color: var(--text-muted); margin-top: 1px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
 
     .sidebar-footer {
-      padding: 10px 16px;
-      border-top: 1px solid var(--line-soft);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      font-size: 12px;
-      color: var(--text-muted);
+      padding: 10px 16px; border-top: 1px solid var(--line-soft);
+      display: flex; flex-direction: column; gap: 8px;
+      font-size: 12px; color: var(--text-muted);
     }
-    .footer-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-    }
+    .footer-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
     .footer-user {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--text-soft);
-      font-weight: 500;
-      min-width: 0;
+      display: flex; align-items: center; gap: 8px;
+      color: var(--text-soft); font-weight: 500; min-width: 0;
     }
     .footer-user span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .footer-user .user-glyph {
-      width: 22px; height: 22px;
-      flex-shrink: 0;
-      border-radius: 6px;
-      border: 1px solid var(--line);
-      color: var(--fg);
+      width: 22px; height: 22px; flex-shrink: 0; border-radius: 6px;
+      border: 1px solid var(--line); color: var(--fg);
       display: grid; place-items: center;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      transition:
-        border-color var(--t-fast),
-        background-color var(--t-fast);
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      transition: border-color var(--t-fast), background-color var(--t-fast);
     }
     .footer-link {
-      cursor: pointer;
-      transition: color var(--t-fast);
-      text-decoration: none;
-      color: var(--text-muted);
-      white-space: nowrap;
-      position: relative;
+      cursor: pointer; transition: color var(--t-fast);
+      text-decoration: none; color: var(--text-muted);
+      white-space: nowrap; position: relative;
     }
     .footer-link::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: -2px;
-      height: 1px;
-      background: currentColor;
-      transform: scaleX(0);
-      transform-origin: left;
+      content: ''; position: absolute; left: 0; right: 0; bottom: -2px;
+      height: 1px; background: currentColor;
+      transform: scaleX(0); transform-origin: left;
       transition: transform 360ms var(--ease-out-expo);
     }
     .footer-link:hover { color: var(--fg); }
     .footer-link:hover::after { transform: scaleX(1); }
     .footer-link:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
 
-    /* ========== Main Area ========== */
     .main-area {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      min-width: 0;
-      background: var(--panel);
+      position: relative; display: flex; flex-direction: column;
+      height: 100%; min-width: 0; background: var(--panel);
       animation: mainIn 760ms var(--ease-out-expo) 80ms both;
     }
-
     .main-top-bar {
-      height: 48px;
-      flex-shrink: 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      padding: 0 16px;
+      height: 48px; flex-shrink: 0;
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 12px; padding: 0 16px;
       background: var(--panel);
       border-bottom: 1px solid var(--line-soft);
       z-index: 10;
       animation: riseIn 620ms var(--ease-out-expo) 140ms both;
     }
-
     .status-indicator {
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      font-size: 11px; font-weight: 500; color: var(--text-muted);
+      display: flex; align-items: center; gap: 6px;
       transition: color 360ms var(--ease-out-expo);
     }
     .status-dot {
-      width: 5px; height: 5px;
-      border-radius: 50%;
+      width: 5px; height: 5px; border-radius: 50%;
       background: var(--text-muted);
       transition: background-color 360ms var(--ease-out-expo);
     }
@@ -665,118 +463,72 @@
       background: var(--text-soft);
       animation: statusPulseSoft 1300ms var(--ease-out-expo) infinite;
     }
-
     .main-actions { display: flex; gap: 8px; }
-
     .btn-action {
-      height: 32px;
-      padding: 0 16px;
+      height: 32px; padding: 0 16px;
       background: transparent;
       border: 1px solid rgba(var(--fg-rgb), 0.35);
-      border-radius: 8px;
-      cursor: pointer;
-      color: var(--fg);
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-      transition:
-        background-color var(--t-fast),
-        color var(--t-fast),
-        border-color var(--t-fast),
-        box-shadow 340ms var(--ease-out-expo),
-        transform 260ms var(--ease-spring);
+      border-radius: 8px; cursor: pointer; color: var(--fg);
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      display: flex; align-items: center; gap: 6px; white-space: nowrap;
+      transition: background-color var(--t-fast), color var(--t-fast),
+                  border-color var(--t-fast),
+                  box-shadow 340ms var(--ease-out-expo),
+                  transform 260ms var(--ease-spring);
       will-change: transform;
     }
     .btn-action:hover {
-      border-color: var(--fg);
-      background: rgba(var(--fg-rgb), 0.04);
+      border-color: var(--fg); background: rgba(var(--fg-rgb), 0.04);
       transform: translateY(-1px);
       box-shadow: 0 6px 18px rgba(var(--shadow-rgb), 0.3);
     }
     .btn-action:active { transform: translateY(0) scale(0.97); transition-duration: 90ms; }
     .btn-action:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
     .btn-action.primary {
-      background: var(--btn-solid-bg);
-      color: var(--btn-solid-fg);
+      background: var(--btn-solid-bg); color: var(--btn-solid-fg);
       border-color: var(--fg);
       box-shadow: 0 1px 2px rgba(var(--shadow-rgb), 0.3);
     }
     .btn-action.primary:hover {
-      background: var(--btn-solid-hover);
-      border-color: var(--btn-solid-hover);
+      background: var(--btn-solid-hover); border-color: var(--btn-solid-hover);
       box-shadow: 0 8px 24px rgba(var(--fg-rgb), 0.16), 0 1px 2px rgba(var(--shadow-rgb), 0.3);
     }
-    .btn-action.danger {
-      animation: btnAppear 420ms var(--ease-out-expo);
-    }
+    .btn-action.danger { animation: btnAppear 420ms var(--ease-out-expo); }
     .btn-action.danger:hover {
-      border-color: var(--danger);
-      color: var(--danger);
+      border-color: var(--danger); color: var(--danger);
       background: rgba(var(--danger-rgb), 0.06);
       box-shadow: 0 6px 18px rgba(var(--danger-rgb), 0.10);
     }
 
-    .main-scroll {
-      flex: 1;
-      overflow-y: auto;
-    }
+    .main-scroll { flex: 1; overflow-y: auto; }
     .main-scroll::-webkit-scrollbar { width: 8px; }
     .main-scroll::-webkit-scrollbar-thumb { background: rgba(var(--fg-rgb),0.18); border-radius: 4px; }
     .main-scroll::-webkit-scrollbar-track { background: transparent; }
-
-    .main-inner {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 24px 28px 64px;
-    }
-
-    .main-inner > * {
-      animation: riseIn 620ms var(--ease-out-expo) both;
-    }
+    .main-inner { max-width: 900px; margin: 0 auto; padding: 24px 28px 64px; }
+    .main-inner > * { animation: riseIn 620ms var(--ease-out-expo) both; }
     .main-inner > *:nth-child(1) { animation-delay: 60ms; }
     .main-inner > *:nth-child(2) { animation-delay: 140ms; }
     .main-inner > *:nth-child(3) { animation-delay: 220ms; }
 
     .org-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
+      display: flex; justify-content: space-between; align-items: flex-end;
       margin-bottom: 6px;
     }
     .org-title {
-      font-size: 22px;
-      font-weight: 600;
-      color: var(--fg);
-      letter-spacing: -0.01em;
-      line-height: 1.25;
-      word-break: break-word;
+      font-size: 22px; font-weight: 600; color: var(--fg);
+      letter-spacing: -0.01em; line-height: 1.25; word-break: break-word;
     }
-
     .org-meta {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-muted);
-      margin-bottom: 20px;
-      padding-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 500; color: var(--text-muted);
+      margin-bottom: 20px; padding-bottom: 16px;
       border-bottom: 1px solid var(--line-soft);
     }
-    .org-meta .dot {
-      width: 3px; height: 3px;
-      border-radius: 50%;
-      background: var(--text-muted);
-    }
+    .org-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-muted); }
 
     .empty-state {
-      text-align: center;
-      padding: 40px 24px;
+      text-align: center; padding: 40px 24px;
       color: var(--text-muted);
       background: var(--panel);
       border: 1px solid var(--panel-edge);
@@ -785,15 +537,11 @@
     }
     .empty-state:hover { border-color: rgba(var(--fg-rgb), 0.12); }
     .empty-state svg {
-      width: 28px; height: 28px;
-      margin-bottom: 10px;
+      width: 28px; height: 28px; margin-bottom: 10px;
       stroke: rgba(var(--fg-rgb), 0.28);
     }
     .empty-state-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--fg);
-      margin-bottom: 4px;
+      font-size: 15px; font-weight: 600; color: var(--fg); margin-bottom: 4px;
     }
     .empty-state-text { font-size: 13px; color: var(--text-soft); max-width: 340px; margin: 0 auto; line-height: 1.5; }
 
@@ -801,21 +549,13 @@
       background: var(--panel);
       border: 1px solid var(--panel-edge);
       border-radius: 12px;
-      overflow-x: auto;
-      overflow-y: hidden;
+      overflow-x: auto; overflow-y: hidden;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
     th {
-      text-align: left;
-      padding: 10px 14px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
+      text-align: left; padding: 10px 14px;
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.12em;
       color: var(--text-muted);
       border-bottom: 1px solid var(--line-soft);
     }
@@ -826,10 +566,7 @@
       transition: background-color 260ms var(--ease-out-expo);
     }
     tr:last-child td { border-bottom: none; }
-
-    tbody tr {
-      animation: riseIn 520ms var(--ease-out-expo) both;
-    }
+    tbody tr { animation: riseIn 520ms var(--ease-out-expo) both; }
     tbody tr:nth-child(1)  { animation-delay: 260ms; }
     tbody tr:nth-child(2)  { animation-delay: 290ms; }
     tbody tr:nth-child(3)  { animation-delay: 320ms; }
@@ -841,29 +578,22 @@
     tbody tr:nth-child(9)  { animation-delay: 500ms; }
     tbody tr:nth-child(10) { animation-delay: 530ms; }
     tbody tr:nth-child(n+11) { animation-delay: 560ms; }
-
     tbody tr:hover td { background: rgba(var(--fg-rgb), 0.03); }
 
-    .td-username { font-family: var(--mono); font-weight: 400; color: var(--fg); word-break: break-all; }
-    .checkbox-cell {
-      width: 36px;
-      padding-right: 0;
+    .td-username {
+      font-family: var(--mono); font-weight: 400;
+      color: var(--fg); word-break: break-all;
     }
+    .checkbox-cell { width: 36px; padding-right: 0; }
     input[type="checkbox"] {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 15px;
-      height: 15px;
+      appearance: none; -webkit-appearance: none;
+      width: 15px; height: 15px;
       border: 1px solid rgba(var(--fg-rgb), 0.35);
-      border-radius: 5px;
-      cursor: pointer;
-      position: relative;
-      background: transparent;
-      vertical-align: middle;
-      transition:
-        background-color 220ms var(--ease-out-expo),
-        border-color 220ms var(--ease-out-expo),
-        box-shadow 300ms var(--ease-out-expo);
+      border-radius: 5px; cursor: pointer; position: relative;
+      background: transparent; vertical-align: middle;
+      transition: background-color 220ms var(--ease-out-expo),
+                  border-color 220ms var(--ease-out-expo),
+                  box-shadow 300ms var(--ease-out-expo);
       will-change: transform;
     }
     input[type="checkbox"]:hover {
@@ -872,47 +602,29 @@
     }
     input[type="checkbox"]:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
     input[type="checkbox"]:checked {
-      background: var(--fg);
-      border-color: var(--fg);
+      background: var(--fg); border-color: var(--fg);
       animation: checkPop 380ms var(--ease-spring);
     }
     input[type="checkbox"]:checked::after {
-      content: '';
-      position: absolute;
-      left: 4px;
-      top: 1px;
-      width: 4px;
-      height: 8px;
-      border: solid var(--panel);
-      border-width: 0 2px 2px 0;
+      content: ''; position: absolute; left: 4px; top: 1px;
+      width: 4px; height: 8px;
+      border: solid var(--panel); border-width: 0 2px 2px 0;
       transform: rotate(45deg);
     }
 
-    .row-actions {
-      display: flex;
-      gap: 6px;
-      justify-content: flex-end;
-    }
+    .row-actions { display: flex; gap: 6px; justify-content: flex-end; }
     .btn-row {
       background: transparent;
       border: 1px solid rgba(var(--fg-rgb), 0.28);
-      border-radius: 6px;
-      padding: 6px 12px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-soft);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition:
-        background-color var(--t-fast),
-        color var(--t-fast),
-        border-color var(--t-fast),
-        box-shadow 300ms var(--ease-out-expo),
-        transform 240ms var(--ease-spring);
+      border-radius: 6px; padding: 6px 12px;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-soft); cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      transition: background-color var(--t-fast), color var(--t-fast),
+                  border-color var(--t-fast),
+                  box-shadow 300ms var(--ease-out-expo),
+                  transform 240ms var(--ease-spring);
       will-change: transform;
     }
     .btn-row svg {
@@ -920,8 +632,7 @@
       transition: transform 560ms var(--ease-out-expo);
     }
     .btn-row:hover {
-      border-color: var(--fg);
-      color: var(--fg);
+      border-color: var(--fg); color: var(--fg);
       background: rgba(var(--fg-rgb), 0.04);
       transform: translateY(-1px);
       box-shadow: 0 6px 18px rgba(var(--shadow-rgb), 0.3);
@@ -930,8 +641,7 @@
     .btn-row:active { transform: translateY(0) scale(0.95); transition-duration: 90ms; }
     .btn-row:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
     .btn-row.danger:hover {
-      border-color: var(--danger);
-      color: var(--danger);
+      border-color: var(--danger); color: var(--danger);
       background: rgba(var(--danger-rgb), 0.06);
       box-shadow: 0 6px 18px rgba(var(--danger-rgb), 0.12);
     }
@@ -940,199 +650,123 @@
     .dialog-overlay {
       position: fixed; inset: 0;
       background: var(--overlay);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      z-index: 3000;
-      overflow-y: auto;
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-      transition:
-        opacity 300ms var(--ease-out-expo),
-        visibility 0s linear 300ms;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; z-index: 3000; overflow-y: auto;
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity 300ms var(--ease-out-expo),
+                  visibility 0s linear 300ms;
     }
     .dialog-overlay.active {
-      opacity: 1;
-      visibility: visible;
-      pointer-events: auto;
-      transition:
-        opacity 300ms var(--ease-out-expo),
-        visibility 0s linear 0s;
+      opacity: 1; visibility: visible; pointer-events: auto;
+      transition: opacity 300ms var(--ease-out-expo), visibility 0s linear 0s;
     }
-
     .dialog-box {
-      position: relative;
-      background: var(--panel);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      position: relative; background: var(--panel);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--line);
       border-radius: 14px;
       box-shadow: 0 1px 2px rgba(var(--shadow-rgb), 0.4);
-      width: 100%;
-      max-width: 460px;
-      margin: auto;
-      padding: 30px;
-      transform: translateY(18px) scale(0.955);
-      opacity: 0;
-      transition:
-        transform 480ms var(--ease-out-expo),
-        opacity 340ms var(--ease-out-expo);
+      width: 100%; max-width: 460px; margin: auto; padding: 30px;
+      transform: translateY(18px) scale(0.955); opacity: 0;
+      transition: transform 480ms var(--ease-out-expo),
+                  opacity 340ms var(--ease-out-expo);
       will-change: transform, opacity;
     }
     .dialog-overlay.active .dialog-box {
-      transform: translateY(0) scale(1);
-      opacity: 1;
+      transform: translateY(0) scale(1); opacity: 1;
     }
-
-    .dialog-box > * {
-      animation: dialogChildIn 520ms var(--ease-out-expo) both;
-    }
+    .dialog-box > * { animation: dialogChildIn 520ms var(--ease-out-expo) both; }
     .dialog-box > *:nth-child(1) { animation-delay: 100ms; }
     .dialog-box > *:nth-child(2) { animation-delay: 160ms; }
     .dialog-box > *:nth-child(3) { animation-delay: 220ms; }
     .dialog-box > *:nth-child(4) { animation-delay: 280ms; }
     .dialog-box > *:nth-child(5) { animation-delay: 340ms; }
     .dialog-box > *:nth-child(6) { animation-delay: 400ms; }
-    .dialog-box > #customPassGroup {
-      animation-delay: 0ms;
-    }
+    .dialog-box > #customPassGroup { animation-delay: 0ms; }
 
-    .dialog-title {
-      font-size: 17px;
-      font-weight: 600;
-      margin-bottom: 6px;
-      color: var(--fg);
-    }
-    .dialog-text {
-      font-size: 14px;
-      color: var(--text-soft);
-      line-height: 1.5;
-      margin-bottom: 22px;
-    }
+    .dialog-title { font-size: 17px; font-weight: 600; margin-bottom: 6px; color: var(--fg); }
+    .dialog-text { font-size: 14px; color: var(--text-soft); line-height: 1.5; margin-bottom: 22px; }
     .dialog-text strong { color: var(--fg); font-weight: 600; }
-    .dialog-input-group {
-      margin-bottom: 18px;
-      position: relative;
-    }
+    .dialog-input-group { margin-bottom: 18px; position: relative; }
     .dialog-input-group label {
-      display: block;
-      font-size: 10.5px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      font-weight: 500;
-      margin-bottom: 6px;
+      display: block; font-size: 10.5px; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--text-muted);
+      font-weight: 500; margin-bottom: 6px;
       transition: color 260ms var(--ease-out-expo);
     }
     .dialog-input-group:focus-within label { color: var(--text-soft); }
     .dialog-input {
-      width: 100%;
-      background: transparent;
-      border: none;
+      width: 100%; background: transparent; border: none;
       border-bottom: 1px solid rgba(var(--fg-rgb), 0.35);
-      border-radius: 0;
-      padding: 7px 0 9px;
-      font-size: 15px;
-      color: var(--text);
-      outline: none;
+      border-radius: 0; padding: 7px 0 9px;
+      font-size: 15px; color: var(--text); outline: none;
       transition: border-color 260ms var(--ease-out-expo);
     }
-    .dialog-input::placeholder {
-      color: rgba(var(--fg-rgb), 0.28);
-      font-style: normal;
-    }
+    .dialog-input::placeholder { color: rgba(var(--fg-rgb), 0.28); }
     .dialog-input.mono { font-family: var(--mono); letter-spacing: normal; }
 
     .toggle-group {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 12px;
-      padding: 4px;
-      background: transparent;
-      border: 1px solid var(--line);
-      border-radius: 9px;
+      display: flex; gap: 4px; margin-bottom: 12px;
+      padding: 4px; background: transparent;
+      border: 1px solid var(--line); border-radius: 9px;
     }
     .toggle-btn {
-      flex: 1;
-      padding: 9px 10px;
-      background: transparent;
-      border: 1px solid transparent;
-      color: var(--text-muted);
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
+      flex: 1; padding: 9px 10px; background: transparent;
+      border: 1px solid transparent; color: var(--text-muted);
+      border-radius: 6px; cursor: pointer;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
       transform: scale(0.985);
-      transition:
-        background-color 320ms var(--ease-out-expo),
-        color 320ms var(--ease-out-expo),
-        box-shadow 340ms var(--ease-out-expo),
-        transform 320ms var(--ease-spring);
+      transition: background-color 320ms var(--ease-out-expo),
+                  color 320ms var(--ease-out-expo),
+                  box-shadow 340ms var(--ease-out-expo),
+                  transform 320ms var(--ease-spring);
       will-change: transform;
     }
     .toggle-btn:hover { color: var(--fg); }
     .toggle-btn:active { transform: scale(0.94); transition-duration: 100ms; }
     .toggle-btn:focus-visible { outline: var(--focus-ring); outline-offset: 0; }
     .toggle-btn.active {
-      background: var(--btn-solid-bg);
-      color: var(--btn-solid-fg);
+      background: var(--btn-solid-bg); color: var(--btn-solid-fg);
       transform: scale(1);
       box-shadow: 0 4px 14px rgba(var(--shadow-rgb), 0.3);
     }
 
     .dialog-actions {
-      display: flex;
-      gap: 8px;
-      justify-content: flex-end;
-      margin-top: 26px;
-      flex-wrap: wrap;
+      display: flex; gap: 8px; justify-content: flex-end;
+      margin-top: 26px; flex-wrap: wrap;
     }
     .btn-primary {
-      padding: 11px 18px;
-      border-radius: 8px;
+      padding: 11px 18px; border-radius: 8px;
       border: 1px solid rgba(var(--fg-rgb), 0.5);
-      background: transparent;
-      color: var(--fg);
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
+      background: transparent; color: var(--fg);
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase;
       cursor: pointer;
-      transition:
-        background-color var(--t-fast),
-        color var(--t-fast),
-        border-color var(--t-fast),
-        box-shadow 340ms var(--ease-out-expo),
-        transform 260ms var(--ease-spring);
+      transition: background-color var(--t-fast), color var(--t-fast),
+                  border-color var(--t-fast),
+                  box-shadow 340ms var(--ease-out-expo),
+                  transform 260ms var(--ease-spring);
       will-change: transform;
     }
     .btn-primary:hover {
-      border-color: var(--fg);
-      background: rgba(var(--fg-rgb), 0.04);
+      border-color: var(--fg); background: rgba(var(--fg-rgb), 0.04);
       transform: translateY(-1px);
       box-shadow: 0 6px 18px rgba(var(--shadow-rgb), 0.3);
     }
     .btn-primary:active { transform: translateY(0) scale(0.97); transition-duration: 90ms; }
     .btn-primary:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
     .btn-primary.main {
-      background: var(--btn-solid-bg);
-      border-color: var(--fg);
+      background: var(--btn-solid-bg); border-color: var(--fg);
       color: var(--btn-solid-fg);
       box-shadow: 0 1px 2px rgba(var(--shadow-rgb), 0.3);
     }
     .btn-primary.main:hover {
-      background: var(--btn-solid-hover);
-      border-color: var(--btn-solid-hover);
+      background: var(--btn-solid-hover); border-color: var(--btn-solid-hover);
       box-shadow: 0 8px 24px rgba(var(--fg-rgb), 0.16), 0 1px 2px rgba(var(--shadow-rgb), 0.3);
     }
     .btn-primary.destructive {
-      background: transparent;
-      border-color: var(--danger);
-      color: var(--danger);
+      background: transparent; border-color: var(--danger); color: var(--danger);
     }
     .btn-primary.destructive:hover {
       background: rgba(var(--danger-rgb), 0.08);
@@ -1142,32 +776,20 @@
 
     /* Toast */
     .toast-container {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      z-index: 4000;
-      pointer-events: none;
+      position: fixed; bottom: 24px; right: 24px;
+      display: flex; flex-direction: column; gap: 8px;
+      z-index: 4000; pointer-events: none;
     }
     .toast {
       background: var(--panel);
       border: 1px solid var(--line);
       border-left: 3px solid var(--line);
-      padding: 11px 16px;
-      border-radius: 10px;
+      padding: 11px 16px; border-radius: 10px;
       box-shadow: 0 1px 2px rgba(var(--shadow-rgb), 0.4);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text);
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; font-weight: 500; color: var(--text);
       animation: toastIn 460ms var(--ease-out-expo) both;
-      pointer-events: auto;
-      min-width: 240px;
-      max-width: 90vw;
+      pointer-events: auto; min-width: 240px; max-width: 90vw;
     }
     .toast.exit { animation: toastOut 240ms var(--ease-standard) forwards; }
     .toast svg { width: 16px; height: 16px; flex-shrink: 0; }
@@ -1176,22 +798,13 @@
     .toast.success svg { color: var(--success); }
     .toast.error svg { color: var(--danger); }
 
-    /* ============================================================
-       RESPONSIVE
-       ============================================================ */
+    /* RESPONSIVE */
     @media (max-width: 860px) {
-      .app {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto minmax(0, 1fr);
-      }
+      .app { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
       .sidebar {
-        height: auto;
-        flex-direction: row;
-        align-items: center;
-        flex-wrap: nowrap;
-        gap: 4px;
-        border-right: none;
-        border-bottom: 1px solid var(--line-soft);
+        height: auto; flex-direction: row; align-items: center;
+        flex-wrap: nowrap; gap: 4px;
+        border-right: none; border-bottom: 1px solid var(--line-soft);
       }
       .sidebar-header { padding: 0 8px 0 16px; }
       .brand-name { display: none; }
@@ -1206,11 +819,14 @@
       .main-inner { padding: 20px 16px 64px; }
       .login-shell { padding: 40px 28px 28px; }
       .login-glyph { font-size: 60px; }
-
       .login-logo { width: 64px; height: 80px; }
       .login-name { font-size: 26px; }
       .dialog-box { padding: 24px 22px; }
-      .toast-container { left: 50%; right: auto; bottom: 20px; transform: translateX(-50%); width: calc(100% - 32px); align-items: center; }
+      .toast-container {
+        left: 50%; right: auto; bottom: 20px;
+        transform: translateX(-50%);
+        width: calc(100% - 32px); align-items: center;
+      }
       .toast { min-width: 0; width: 100%; }
     }
     @media (max-width: 480px) {
@@ -1218,28 +834,18 @@
       .th-hide-mobile { display: none; }
     }
   
-    /* ============================================================
-       BRAND LOGO
-       ============================================================ */
+    /* BRAND LOGO */
     .brand-logo { position: relative; display: block; flex-shrink: 0; }
     .brand-logo img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      user-select: none;
-      -webkit-user-drag: none;
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: contain; user-select: none; -webkit-user-drag: none;
     }
-
     .login-glyph { display: flex; justify-content: center; }
     .login-logo { width: 77px; height: 96px; }
     .brand-glyph { display: flex; align-items: center; }
     .brand-glyph .brand-logo { width: 22px; height: 28px; }
 
-    /* ============================================================
-       KEY PAGE
-       ============================================================ */
+    /* KEY PAGE */
     @keyframes keyDrop {
       from { opacity: 0; translate: 0 -56px; scale: 0.92; }
       to   { opacity: 1; translate: 0 0; scale: 1; }
@@ -1256,14 +862,14 @@
     }
     .key-bar {
       height: 56px; padding: 0 20px; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px;
       border-bottom: 1px solid var(--line-soft);
       position: relative; z-index: 7; background: var(--panel);
     }
     .key-bar-right { display: flex; align-items: center; gap: 20px; min-width: 0; }
     .key-stage { position: relative; flex: 1; overflow: hidden; touch-action: none; }
 
-    /* ---------- vault ---------- */
     .vault-scene {
       position: absolute; inset: 0; z-index: 1;
       display: grid; place-items: center;
@@ -1285,12 +891,11 @@
     .vault-frame {
       position: absolute; inset: 0; border-radius: 50%;
       background: radial-gradient(circle at 32% 24%, #ffffff 0%, #ececec 55%, #d2d2d2 100%);
-      box-shadow:
-        0 40px 70px -24px rgba(var(--shadow-rgb), 0.3),
-        0 0 0 1px var(--line),
-        inset 0 2px 0 rgba(255, 255, 255, 0.95),
-        inset 0 0 0 14px #f6f6f6,
-        inset 0 0 0 15px var(--line);
+      box-shadow: 0 40px 70px -24px rgba(var(--shadow-rgb), 0.3),
+                  0 0 0 1px var(--line),
+                  inset 0 2px 0 rgba(255, 255, 255, 0.95),
+                  inset 0 0 0 14px #f6f6f6,
+                  inset 0 0 0 15px var(--line);
     }
     .vault-inside {
       position: absolute; inset: 7%; border-radius: 50%; overflow: hidden;
@@ -1302,7 +907,8 @@
       background: repeating-radial-gradient(circle at 50% 50%, transparent 0 22px, rgba(255,255,255,0.05) 22px 23px);
     }
     .vault-inside::after {
-      content: ''; position: absolute; left: 50%; top: 50%; width: 46%; height: 46%;
+      content: ''; position: absolute; left: 50%; top: 50%;
+      width: 46%; height: 46%;
       transform: translate(-50%, -50%); border-radius: 50%;
       background: radial-gradient(circle, rgba(255,255,255,0.95), rgba(255,255,255,0) 68%);
       opacity: 0;
@@ -1315,11 +921,10 @@
       transform-origin: 0% 50%;
       transition: transform 1300ms cubic-bezier(0.65, 0, 0.25, 1);
       background: radial-gradient(circle at 34% 26%, #ffffff 0%, #e9e9e9 50%, #cbcbcb 100%);
-      box-shadow:
-        0 0 0 1px var(--line),
-        inset 0 0 0 8px rgba(255, 255, 255, 0.65),
-        inset 0 0 0 9px var(--line-soft),
-        16px 12px 34px -12px rgba(var(--shadow-rgb), 0.4);
+      box-shadow: 0 0 0 1px var(--line),
+                  inset 0 0 0 8px rgba(255, 255, 255, 0.65),
+                  inset 0 0 0 9px var(--line-soft),
+                  16px 12px 34px -12px rgba(var(--shadow-rgb), 0.4);
       will-change: transform;
     }
     .vault.open .vault-door { transform: rotateY(-78deg); }
@@ -1336,7 +941,8 @@
     .vault-bolts i {
       --s: calc(var(--v) * 0.045);
       position: absolute; left: 50%; top: 50%;
-      width: var(--s); height: var(--s); margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+      width: var(--s); height: var(--s);
+      margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
       border-radius: 50%;
       background: radial-gradient(circle at 35% 30%, #ffffff, #bdbdbd);
       box-shadow: 0 0 0 1px var(--line), 0 2px 3px rgba(var(--shadow-rgb), 0.25);
@@ -1348,14 +954,16 @@
     }
 
     .vault-dial {
-      position: absolute; left: 50%; top: 50%; width: 30%; height: 30%; margin: -15% 0 0 -15%;
+      position: absolute; left: 50%; top: 50%;
+      width: 30%; height: 30%; margin: -15% 0 0 -15%;
       isolation: isolate;
       transition: transform 1100ms cubic-bezier(0.65, 0, 0.25, 1);
     }
     .vault.unlocked .vault-dial { transform: rotate(-300deg); }
     .spoke {
-      position: absolute; left: 50%; top: 50%; width: 11%; height: 172%;
-      margin: -86% 0 0 -5.5%; z-index: 0; border-radius: 99px;
+      position: absolute; left: 50%; top: 50%;
+      width: 11%; height: 172%; margin: -86% 0 0 -5.5%;
+      z-index: 0; border-radius: 99px;
       transform: rotate(var(--r));
       background: linear-gradient(90deg, #c4c4c4, #ffffff 45%, #b8b8b8);
       box-shadow: 0 0 0 1px var(--line);
@@ -1363,36 +971,37 @@
     .dial-face {
       position: absolute; inset: 0; z-index: 1; border-radius: 50%;
       background: radial-gradient(circle at 36% 28%, #ffffff, #dcdcdc 70%, #c4c4c4);
-      box-shadow:
-        0 0 0 1px var(--line),
-        0 8px 16px rgba(var(--shadow-rgb), 0.22),
-        inset 0 0 0 6px rgba(255, 255, 255, 0.7),
-        inset 0 0 0 7px var(--line-soft);
+      box-shadow: 0 0 0 1px var(--line),
+                  0 8px 16px rgba(var(--shadow-rgb), 0.22),
+                  inset 0 0 0 6px rgba(255, 255, 255, 0.7),
+                  inset 0 0 0 7px var(--line-soft);
     }
     .vault-keyhole {
       --near: 0;
-      position: absolute; left: 50%; top: 50%; width: 44%; height: 44%; margin: -22% 0 0 -22%;
+      position: absolute; left: 50%; top: 50%;
+      width: 44%; height: 44%; margin: -22% 0 0 -22%;
       border-radius: 50%;
       background: radial-gradient(circle at 40% 30%, #3a3a3a, #0f0f0f);
-      box-shadow:
-        0 0 0 3px rgba(255, 255, 255, 0.85),
-        0 0 0 4px var(--line),
-        0 0 0 calc(4px + var(--near) * 12px) rgba(var(--fg-rgb), calc(var(--near) * 0.16));
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.85),
+                  0 0 0 4px var(--line),
+                  0 0 0 calc(4px + var(--near) * 12px) rgba(var(--fg-rgb), calc(var(--near) * 0.16));
       transition: box-shadow 180ms var(--ease-standard);
     }
     .vault-keyhole::before {
-      content: ''; position: absolute; left: 20%; top: 50%; width: 30%; height: 30%;
+      content: ''; position: absolute; left: 20%; top: 50%;
+      width: 30%; height: 30%;
       transform: translateY(-50%); border-radius: 50%; background: #f4f4f4;
     }
     .vault-keyhole::after {
-      content: ''; position: absolute; left: 42%; top: 50%; width: 36%; height: 12%;
+      content: ''; position: absolute; left: 42%; top: 50%;
+      width: 36%; height: 12%;
       transform: translateY(-50%); border-radius: 0 3px 3px 0; background: #f4f4f4;
     }
     .vault.clicked .vault-keyhole { animation: holePulse 800ms var(--ease-out-expo) both; }
 
-    /* ---------- key ---------- */
     .key {
-      position: absolute; left: 0; top: 0; width: 240px; height: 84px; z-index: 5;
+      position: absolute; left: 0; top: 0;
+      width: 240px; height: 84px; z-index: 5;
       cursor: grab; user-select: none; -webkit-user-select: none;
       touch-action: none; will-change: transform; outline: none;
       transition: opacity 420ms var(--ease-standard);
@@ -1414,11 +1023,13 @@
     }
     .key.turning .key-spin { transform: perspective(700px) rotateX(90deg); }
     .key-bow {
-      position: absolute; left: 0; top: 0; width: 84px; height: 84px;
+      position: absolute; left: 0; top: 0;
+      width: 84px; height: 84px;
       border-radius: 50%; border: 16px solid var(--fg);
     }
     .key-shaft {
-      position: absolute; left: 74px; top: 35px; width: 166px; height: 14px;
+      position: absolute; left: 74px; top: 35px;
+      width: 166px; height: 14px;
       background: var(--fg); border-radius: 0 4px 4px 0;
     }
     .key-tooth { position: absolute; top: 46px; width: 13px; background: var(--fg); border-radius: 0 0 3px 3px; }
@@ -1426,17 +1037,18 @@
     .key-tooth.t2 { left: 184px; height: 15px; }
     .key-tooth.t3 { left: 214px; height: 26px; }
     .key-hint {
-      position: absolute; left: 0; right: 0; bottom: 28px; text-align: center; z-index: 3;
-      font-size: 13px; color: var(--text-muted); pointer-events: none;
+      position: absolute; left: 0; right: 0; bottom: 28px;
+      text-align: center; z-index: 3;
+      font-size: 13px; color: var(--text-muted);
+      pointer-events: none;
       transition: opacity 500ms var(--ease-standard);
     }
     .key-hint.gone { opacity: 0; }
 
-    /* ---------- inside ---------- */
     .inside {
-      position: absolute; left: 0; right: 0; top: 56px; bottom: 0; z-index: 6;
-      display: flex; align-items: stretch; justify-content: stretch; padding: 0;
-      overflow: hidden; background: var(--panel);
+      position: absolute; left: 0; right: 0; top: 56px; bottom: 0;
+      z-index: 6; display: flex; align-items: stretch; justify-content: stretch;
+      padding: 0; overflow: hidden; background: var(--panel);
       visibility: hidden; pointer-events: none;
       clip-path: circle(0px at var(--ox, 50%) var(--oy, 50%));
       transition: clip-path 900ms cubic-bezier(0.5, 0, 0.2, 1), visibility 0s linear 900ms;
@@ -1446,7 +1058,6 @@
       clip-path: circle(150vmax at var(--ox, 50%) var(--oy, 50%));
       transition: clip-path 1300ms cubic-bezier(0.4, 0, 0.1, 1), visibility 0s;
     }
-    /* dashboard UI nested inside the vault reveal — fills the revealed area */
     .inside .app { width: 100%; height: 100%; min-height: 0; }
     .inside .sidebar, .inside .main-area { animation: none; }
     .inside-inner { width: min(620px, 100%); text-align: center; }
@@ -1456,16 +1067,17 @@
       animation-delay: calc(650ms + var(--d, 0) * 90ms);
     }
     .inside-eyebrow {
-      font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
-      color: var(--text-muted);
+      font-size: 11px; font-weight: 600; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--text-muted);
     }
     .inside-title {
-      margin-top: 14px; font-size: clamp(28px, 5vw, 42px); font-weight: 600;
-      letter-spacing: -0.02em; line-height: 1.1; color: var(--text);
+      margin-top: 14px; font-size: clamp(28px, 5vw, 42px);
+      font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; color: var(--text);
     }
     .inside-sub { margin-top: 14px; font-size: 15px; color: var(--text-soft); }
     .inside-card {
-      margin: 34px 0 30px; padding: 34px 20px; border: 1px dashed var(--line); border-radius: 12px;
+      margin: 34px 0 30px; padding: 34px 20px;
+      border: 1px dashed var(--line); border-radius: 12px;
       font-size: 13px; color: var(--text-muted);
     }
     .inside-lock { flex: none; padding: 14px 30px; }
@@ -1482,14 +1094,13 @@
         transition-delay: 0ms !important;
       }
     }
-</style>
+  </style>
 </head>
-<body><body>
-<!-- ENKRYPTION FINAL LOCKED IN - Project fkkdzwzetthnngolakax - Function https://fkkdzwzetthnngolakax.supabase.co/functions/v1/enkryption -->
-<div id="fileBanner" style="display:none; background:#b91c1c; color:white; text-align:center; padding:10px; font-family:sans-serif; font-size:14px; position:fixed; top:0; left:0; right:0; z-index:9999;">You opened via file:// - this will fail with CORS. Close this, run: python -m http.server 8000, then open http://localhost:8000/Enkryption_FINAL.html</div>
+<body>
+<div id="fileBanner" style="display:none; background:#b91c1c; color:white; text-align:center; padding:10px; font-family:sans-serif; font-size:14px; position:fixed; top:0; left:0; right:0; z-index:9999;">You opened via file:// - this will fail with CORS. Close this, run: python -m http.server 8000, then open http://localhost:8000/Enkryption-FINALLY.html</div>
 <script>if(window.location.protocol==='file:'){document.getElementById('fileBanner').style.display='block';}</script>
 
-<!-- ============ LOGIN SCREEN ============ -->
+<!-- LOGIN SCREEN -->
 <div class="login-screen" id="loginScreen">
   <div class="login-shell">
     <div class="login-brand">
@@ -1529,7 +1140,7 @@
   </div>
 </div>
 
-<!-- ============ KEY PAGE ============ -->
+<!-- KEY PAGE -->
 <div class="key-page" id="app">
   <header class="key-bar">
     <div class="brand">
@@ -1588,9 +1199,7 @@
           </button>
         </div>
 
-        <div class="org-list" id="orgList">
-          <!-- Orgs dynamically injected here -->
-        </div>
+        <div class="org-list" id="orgList"></div>
 
         <div class="sidebar-footer">
           <div class="footer-row">
@@ -1620,9 +1229,7 @@
         </div>
 
         <div class="main-scroll">
-          <div class="main-inner" id="mainContent">
-            <!-- Dynamic table / empty state injected here -->
-          </div>
+          <div class="main-inner" id="mainContent"></div>
         </div>
       </main>
     </div>
@@ -1636,20 +1243,11 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
-/*
- * IMPORTANT: This app calls a Supabase Edge Function over fetch(). It must be
- * served over http:// or https:// (e.g. `python3 -m http.server`, a static
- * host, etc). Opening this file directly via file:// sends `Origin: null`,
- * which the browser's CORS check will reject against the edge function's
- * CORS headers — all API calls will fail with a network/CORS error.
- */
-/* LOCKED IN CONFIG - DO NOT CHANGE - Project fkkdzwzetthnngolakax */
+/* Must be served over http:// or https:// — file:// sends Origin:null and CORS will reject. */
 const CONFIG = {
   FUNCTION_URL: "https://fkkdzwzetthnngolakax.supabase.co/functions/v1/enkryption",
   ANON_KEY: "sb_publishable_lHf4CUfijJ2VufzW38YFmA_qNBei0eF"
 };
-// HOW TO FILL: ANON_KEY is the "anon public" / publishable key from project fkkdzwzetthnngolakax, Settings, API.
-// Do NOT paste the service_role key here.
 
 const $ = (id) => document.getElementById(id);
 const loginScreen = $('loginScreen'), appEl = $('app'), messageEl = $('message');
@@ -1658,14 +1256,19 @@ const registerBtn = $('registerBtn'), loginBtn = $('loginBtn');
 const keyEl = $('key'), keyArt = $('keyArt'), keyStage = $('keyStage'), keyHint = $('keyHint');
 const vaultEl = $('vault'), holeEl = $('vaultHole'), insideEl = $('inside'), lockBtn = $('lockBtn');
 
-/* ---------- session (username only, re-validated against the server) ---------- */
+// Escape user-supplied strings before interpolating into innerHTML / attributes.
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+/* ---------- session ---------- */
 function getStoredUsername() { try { return localStorage.getItem('username'); } catch { return null; } }
-function getStoredToken() { try { return localStorage.getItem('sessionToken'); } catch { return null; } }
+function getStoredToken()    { try { return localStorage.getItem('sessionToken'); } catch { return null; } }
 function clearSession() {
   try { localStorage.removeItem('username'); localStorage.removeItem('sessionToken'); } catch {}
 }
 
-// Raw POST used only before currentUsername/session exist (auth + session-check).
 async function rawApiCall(action, payload = {}) {
   const response = await fetch(CONFIG.FUNCTION_URL, {
     method: 'POST',
@@ -1681,8 +1284,7 @@ async function rawApiCall(action, payload = {}) {
   return { response, data, raw };
 }
 
-// Verifies the stored username against the server instead of trusting
-// localStorage blindly. Returns the validated username, or null.
+// Returns the validated username, or null for auth-failure, or undefined for network error.
 async function checkSession(username) {
   const token = getStoredToken();
   if (!username || !token) return null;
@@ -1691,7 +1293,7 @@ async function checkSession(username) {
     if (response.ok && data && data.success) return data.username || username;
     return null;
   } catch {
-    return null;
+    return undefined;
   }
 }
 
@@ -1711,6 +1313,11 @@ function enterApp(username) {
 }
 
 function showLogin() {
+  // Ensure no stale UI state carries over from a logged-in session
+  try { closeDialog(); } catch {}
+  currentUsername = "";
+  try { selectedAccounts.clear(); } catch {}
+  try { bulkDeleteBtnEl.style.display = 'none'; } catch {}
   appEl.style.display = 'none';
   loginScreen.classList.remove('hidden');
   usernameInput.value = '';
@@ -1722,7 +1329,7 @@ function showLogin() {
 
 async function auth(action) {
   const username = usernameInput.value.trim();
-  const password = passwordInput.value.trim();
+  const password = passwordInput.value; // don't trim — spaces may be intentional
   if (!username || !password) { showLoginMessage('Please enter username and password'); return; }
 
   showLoginMessage('Processing...', 'loading');
@@ -1756,15 +1363,15 @@ async function auth(action) {
     } catch {}
     setTimeout(() => enterApp(data.username), 700);
   } catch (error) {
-    // LOCKED IN: Project fkkdzwzetthnngolakax - If you see this, the browser never reached Supabase.
-    // Most common causes: 1) You opened via file:/// instead of http://localhost:8000/  2) Function 'enkryption' not deployed  3) Browser cache still has old file.
     const isFile = window.location.protocol === 'file:';
     if (error instanceof TypeError) {
-      showLoginMessage(isFile ? 'Cannot reach server - You opened via file:///. Use http://localhost:8000/Enkryption_FINAL.html instead.' : 'Cannot reach server (network or CORS). Function may not be deployed. Open F12 > Console for the real error. ' + error.message);
+      showLoginMessage(isFile
+        ? 'Cannot reach server - You opened via file:///. Use http://localhost:8000/Enkryption-FINALLY.html instead.'
+        : 'Cannot reach server (network or CORS). Function may not be deployed. Open F12 > Console for the real error. ' + error.message);
     } else {
       showLoginMessage('Error: ' + error.message);
     }
-    console.error('[Enkryption] fetch failed. FUNCTION_URL=', CONFIG.FUNCTION_URL, 'protocol=', window.location.protocol, error);
+    console.error('[Enkryption] fetch failed.', error);
   } finally {
     registerBtn.disabled = false;
     loginBtn.disabled = false;
@@ -1843,7 +1450,6 @@ function sway(delta) {
   if (!raf) raf = requestAnimationFrame(tick);
 }
 
-/* key -> keyhole -> bolts -> door -> zoom into the inside */
 async function unlock() {
   if (state !== 'locked') return;
   state = 'unlocking';
@@ -1854,7 +1460,6 @@ async function unlock() {
   cancelAnimationFrame(raf); raf = 0;
   hole = holePoint();
 
-  // glide into the keyhole, straightening out
   angle = target = 0;
   keyEl.style.transition = 'transform 560ms var(--ease-out-expo), opacity 420ms var(--ease-standard)';
   keyArt.style.transition = 'transform 560ms var(--ease-out-expo)';
@@ -1863,21 +1468,17 @@ async function unlock() {
   vaultEl.style.setProperty('--near', 1);
   if (!(await sleep(600, tok))) return;
 
-  // turn the key
   keyEl.classList.add('turning');
   vaultEl.classList.add('clicked');
   if (!(await sleep(560, tok))) return;
 
-  // key fades, bolts retract, dial spins
   keyEl.classList.add('used');
   vaultEl.classList.add('unlocked');
   if (!(await sleep(1050, tok))) return;
 
-  // door swings open
   vaultEl.classList.add('open');
   if (!(await sleep(1000, tok))) return;
 
-  // fly into the vault, iris open the inside
   insideEl.style.setProperty('--ox', hole.x + 'px');
   insideEl.style.setProperty('--oy', hole.y + 'px');
   appEl.classList.add('zooming');
@@ -1941,742 +1542,4 @@ const endDrag = () => {
   keyEl.classList.remove('dragging');
   if (distToHole() < 70) unlock();
 };
-keyEl.addEventListener('pointerup', endDrag);
-keyEl.addEventListener('pointercancel', endDrag);
-
-keyEl.addEventListener('keydown', (e) => {
-  if (state !== 'locked') return;
-  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); unlock(); return; }
-  const step = e.shiftKey ? 48 : 16;
-  const moves = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
-  if (!moves[e.key]) return;
-  e.preventDefault();
-  kx += moves[e.key][0]; ky += moves[e.key][1];
-  applyPos(); keyHint.classList.add('gone');
-  sway(moves[e.key][0] * 0.3);
-  hole = holePoint();
-  if (distToHole() < 16) unlock();
-});
-window.addEventListener('resize', () => {
-  if (state !== 'locked') return;
-  applyPos();
-  hole = holePoint();
-});
-
-/* ---------- sign out + boot ---------- */
-const logoutLink = $('logoutLink');
-const signOut = () => { clearSession(); showLogin(); };
-logoutLink.addEventListener('click', signOut);
-logoutLink.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); signOut(); } });
-
-/* ---------- dashboard (the UI revealed behind the vault door) ---------- */
-let currentUsername = "";
-let selectedAccounts = new Set();
-
-const orgListEl = $('orgList');
-const mainContentEl = $('mainContent');
-const statusIndicatorEl = $('statusIndicator');
-const statusTextEl = $('statusText');
-const bulkDeleteBtnEl = $('bulkDeleteBtn');
-const addAccountBtnEl = $('addAccountBtn');
-const dialogOverlayEl = $('dialogOverlay');
-const dialogBoxEl = $('dialogBox');
-
-function toast(msg, type = 'success') {
-  const el = document.createElement('div');
-  el.className = `toast ${type}`;
-  const icon = type === 'success'
-    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
-    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
-  el.innerHTML = `${icon}<span></span>`;
-  el.querySelector('span').textContent = msg;
-  $('toastContainer').appendChild(el);
-  setTimeout(() => {
-    el.classList.add('exit');
-    setTimeout(() => el.remove(), 250);
-  }, 3500);
-}
-
-function setStatus(status) {
-  if (status === 'ready') {
-    statusTextEl.textContent = 'Ready';
-    statusIndicatorEl.className = 'status-indicator';
-  } else if (status === 'loading') {
-    statusTextEl.textContent = 'Working…';
-    statusIndicatorEl.className = 'status-indicator loading';
-  } else if (status === 'saved') {
-    statusTextEl.textContent = 'Done';
-    statusIndicatorEl.className = 'status-indicator saved';
-    setTimeout(() => setStatus('ready'), 1800);
-  }
-}
-
-function genRandomPassword(len = 16) {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*';
-  let out = '';
-  const buf = new Uint32Array(len);
-  (window.crypto || window.msCrypto).getRandomValues(buf);
-  for (let i = 0; i < len; i++) out += chars[buf[i] % chars.length];
-  return out;
-}
-
-// Real backend call for everything account-related. No localStorage involved —
-// the server is the only source of truth for accounts/passwords.
-async function api(action, payload = {}) {
-  let r;
-  try {
-    r = await fetch(CONFIG.FUNCTION_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': CONFIG.ANON_KEY,
-      'Authorization': `Bearer ${CONFIG.ANON_KEY}`,
-    },
-    body: JSON.stringify({ action, username: currentUsername, sessionToken: getStoredToken(), ...payload }),
-  });
-  } catch (e) {
-    throw new Error('Cannot reach server - ' + e.message + '. Are you on http://localhost:8000/ and is function enkryption deployed?');
-  }
-  const raw = await r.text();
-  let data; try { data = JSON.parse(raw); } catch { data = null; }
-  if (!r.ok || !data || data.success === false) {
-    throw new Error((data && (data.error || data.message)) || `HTTP ${r.status}: ${raw.slice(0, 200)}`);
-  }
-  return data;
-}
-
-async function renderDashboard(username) {
-  if (!username) return;
-  orgListEl.innerHTML = `
-    <div class="org-item active">
-      <span class="org-dot"></span>
-      <div class="org-item-content">
-        <div class="org-item-title">${username}</div>
-        <div class="org-item-sub">Personal Organization</div>
-      </div>
-    </div>
-  `;
-  setStatus('loading');
-  mainContentEl.innerHTML = `<div class="org-header"><div><div class="org-title">${username}</div></div></div><div class="empty-state"><div class="empty-state-title">Loading accounts…</div></div>`;
-  try {
-    const { accounts } = await api('list-accounts');
-    renderAccountsTable(accounts);
-    setStatus('ready');
-  } catch (err) {
-    console.error(err);
-    toast(err.message || 'Failed to load accounts', 'error');
-    setStatus('ready');
-  }
-}
-
-// Shared helper: re-fetch the account list from the server and re-render.
-async function refreshAccounts() {
-  const { accounts } = await api('list-accounts');
-  renderAccountsTable(accounts);
-  return accounts;
-}
-
-function renderEmptyState() {
-  mainContentEl.innerHTML = `
-    <div class="org-header"><div><div class="org-title">${currentUsername}</div></div></div>
-    <div class="org-meta"><span>Organization</span><span class="dot"></span><span>Active</span></div>
-    <div class="empty-state">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-      <div class="empty-state-title">No Sub-Accounts Yet</div>
-      <div class="empty-state-text">Create your first sub-account to manage access for this organization.</div>
-    </div>
-  `;
-}
-
-function renderAccountsTable(accounts) {
-  if (!accounts || accounts.length === 0) { renderEmptyState(); return; }
-
-  selectedAccounts.clear();
-  bulkDeleteBtnEl.style.display = 'none';
-
-  const rowsHtml = accounts.map(acc => `
-    <tr>
-      <td class="checkbox-cell"><input type="checkbox" data-user="${acc.username}" class="row-checkbox"></td>
-      <td class="td-username">${acc.username}</td>
-      <td>
-        <div class="row-actions">
-          <button class="btn-row" data-action="reroll" data-user="${acc.username}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-            </svg>
-            Reroll
-          </button>
-          <button class="btn-row danger" data-action="delete" data-user="${acc.username}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-            </svg>
-            Delete
-          </button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
-
-  mainContentEl.innerHTML = `
-    <div class="org-header"><div><div class="org-title">${currentUsername}</div></div></div>
-    <div class="org-meta"><span>Accounts</span><span class="dot"></span><span>${accounts.length} total</span></div>
-    <div class="table-wrapper">
-      <table>
-        <thead><tr>
-          <th class="checkbox-cell"><input type="checkbox" id="selectAll"></th>
-          <th>Username</th>
-          <th style="text-align:right;">Actions</th>
-        </tr></thead>
-        <tbody>${rowsHtml}</tbody>
-      </table>
-    </div>
-  `;
-  attachTableEventListeners();
-}
-
-function attachTableEventListeners() {
-  document.querySelectorAll('.row-checkbox').forEach(cb => {
-    cb.addEventListener('change', (e) => {
-      const user = e.target.dataset.user;
-      if (e.target.checked) selectedAccounts.add(user); else selectedAccounts.delete(user);
-      updateBulkDeleteBtn();
-    });
-  });
-  const selectAllCb = $('selectAll');
-  if (selectAllCb) {
-    selectAllCb.addEventListener('change', (e) => {
-      document.querySelectorAll('.row-checkbox').forEach(cb => {
-        cb.checked = e.target.checked;
-        if (e.target.checked) selectedAccounts.add(cb.dataset.user); else selectedAccounts.delete(cb.dataset.user);
-      });
-      updateBulkDeleteBtn();
-    });
-  }
-  document.querySelectorAll('.btn-row').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const action = btn.dataset.action, user = btn.dataset.user;
-      if (action === 'reroll') openRerollDialog(user);
-      else if (action === 'delete') openDeleteDialog([user]);
-    });
-  });
-}
-
-function updateBulkDeleteBtn() {
-  if (selectedAccounts.size > 0) {
-    bulkDeleteBtnEl.style.display = 'flex';
-    bulkDeleteBtnEl.textContent = `Delete Selected (${selectedAccounts.size})`;
-  } else {
-    bulkDeleteBtnEl.style.display = 'none';
-  }
-}
-
-function closeDialog() { dialogOverlayEl.classList.remove('active'); }
-dialogOverlayEl.addEventListener('click', (e) => { if (e.target === dialogOverlayEl) closeDialog(); });
-
-addAccountBtnEl.addEventListener('click', () => {
-  dialogBoxEl.innerHTML = `
-    <div class="dialog-title">Add Sub-Account</div>
-    <div class="dialog-text">Create a new account under the <strong>${currentUsername}</strong> organization.</div>
-    <div class="dialog-input-group">
-      <label>Username</label>
-      <input type="text" id="subUsernameInput" class="dialog-input" placeholder="name" autocomplete="off">
-      <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">
-        Final username: <span id="fullUsernamePreview">name@${currentUsername}</span>
-      </div>
-    </div>
-    <div class="dialog-input-group">
-      <label>Password Method</label>
-      <div class="toggle-group">
-        <button class="toggle-btn active" id="randomPassBtn">Generate Random</button>
-        <button class="toggle-btn" id="customPassBtn">Custom Password</button>
-      </div>
-    </div>
-    <div class="dialog-input-group" id="customPassGroup" style="display:none;">
-      <label>Custom Password</label>
-      <input type="text" id="customPassInput" class="dialog-input" placeholder="Min 6 characters">
-    </div>
-    <div class="dialog-actions">
-      <button class="btn-primary" id="cancelDialog">Cancel</button>
-      <button class="btn-primary main" id="confirmAddAccount">Create Account</button>
-    </div>
-  `;
-  dialogOverlayEl.classList.add('active');
-
-  const subInput = $('subUsernameInput');
-  const preview = $('fullUsernamePreview');
-  subInput.addEventListener('input', () => { preview.textContent = `${subInput.value || 'name'}@${currentUsername}`; });
-
-  const randomBtn = $('randomPassBtn'), customBtn = $('customPassBtn'), customPassGroup = $('customPassGroup');
-  randomBtn.onclick = () => { randomBtn.classList.add('active'); customBtn.classList.remove('active'); customPassGroup.style.display = 'none'; };
-  customBtn.onclick = () => { customBtn.classList.add('active'); randomBtn.classList.remove('active'); customPassGroup.style.display = 'block'; };
-
-  $('cancelDialog').onclick = closeDialog;
-  $('confirmAddAccount').onclick = async () => {
-    const sub = subInput.value.trim();
-    if (!sub || !/^[a-zA-Z0-9]+$/.test(sub)) { toast('Invalid username. Use only letters and numbers.', 'error'); return; }
-
-    const useRandom = randomBtn.classList.contains('active');
-    const customPass = $('customPassInput').value;
-    if (!useRandom && customPass.trim().length < 6) { toast('Custom password must be at least 6 characters.', 'error'); return; }
-
-    const confirmBtn = $('confirmAddAccount');
-    const password = useRandom ? genRandomPassword() : customPass.trim();
-
-    confirmBtn.disabled = true;
-    setStatus('loading');
-    try {
-      const result = await api('add-account', { sub, password });
-      setStatus('saved');
-      openCredentialsDialog(result.username, password, useRandom);
-    } catch (err) {
-      console.error(err);
-      toast(err.message || 'Failed to create account', 'error');
-      setStatus('ready');
-    } finally {
-      confirmBtn.disabled = false;
-    }
-  };
-});
-
-function openCredentialsDialog(username, password, isRandom) {
-  dialogBoxEl.innerHTML = `
-    <div class="dialog-title">Account Created</div>
-    <div class="dialog-text">
-      ${isRandom ? 'A secure random password was generated.' : 'Account is ready.'}
-      Please copy the credentials now. For security reasons, the password will not be shown again.
-    </div>
-    <div class="dialog-input-group"><label>Username</label><input type="text" class="dialog-input mono" value="${username}" readonly></div>
-    <div class="dialog-input-group"><label>Password</label><input type="text" class="dialog-input mono" value="${password}" readonly></div>
-    <div class="dialog-actions">
-      <button class="btn-primary" id="copyCredsBtn">Copy Credentials</button>
-      <button class="btn-primary main" id="acceptCredsBtn">I've saved them</button>
-    </div>
-  `;
-  dialogOverlayEl.classList.add('active');
-  $('copyCredsBtn').onclick = () => {
-    navigator.clipboard.writeText(`Username: ${username}\nPassword: ${password}`).then(() => toast('Credentials copied to clipboard'));
-  };
-  $('acceptCredsBtn').onclick = async () => {
-    closeDialog();
-    try { await refreshAccounts(); } catch (err) { console.error(err); toast(err.message || 'Failed to refresh accounts', 'error'); }
-  };
-}
-
-function openRerollDialog(username) {
-  dialogBoxEl.innerHTML = `
-    <div class="dialog-title">Reroll Password</div>
-    <div class="dialog-text">Are you sure you want to generate a new password for <strong>${username}</strong>? The old password will immediately stop working.</div>
-    <div class="dialog-actions">
-      <button class="btn-primary" id="cancelDialog">Cancel</button>
-      <button class="btn-primary main" id="confirmReroll">Generate New Password</button>
-    </div>
-  `;
-  dialogOverlayEl.classList.add('active');
-  $('cancelDialog').onclick = closeDialog;
-  $('confirmReroll').onclick = async () => {
-    const confirmBtn = $('confirmReroll');
-    confirmBtn.disabled = true;
-    setStatus('loading');
-    try {
-      const { password } = await api('reroll-password', { target: username });
-      openNewPasswordDialog(username, password);
-    } catch (err) {
-      console.error(err);
-      toast(err.message || 'Failed to reroll password', 'error');
-      setStatus('ready');
-    } finally {
-      confirmBtn.disabled = false;
-    }
-  };
-}
-
-function openNewPasswordDialog(username, newPassword) {
-  dialogBoxEl.innerHTML = `
-    <div class="dialog-title">Password Updated</div>
-    <div class="dialog-text">The password for <strong>${username}</strong> has been rerolled. Copy the new password now.</div>
-    <div class="dialog-input-group"><label>New Password</label><input type="text" class="dialog-input mono" value="${newPassword}" readonly></div>
-    <div class="dialog-actions">
-      <button class="btn-primary" id="copyPassBtn">Copy Password</button>
-      <button class="btn-primary main" id="closeDialogBtn">Done</button>
-    </div>
-  `;
-  dialogOverlayEl.classList.add('active');
-  setStatus('saved');
-  $('copyPassBtn').onclick = () => navigator.clipboard.writeText(newPassword).then(() => toast('Password copied to clipboard'));
-  $('closeDialogBtn').onclick = closeDialog;
-}
-
-function openDeleteDialog(usernames) {
-  const isMultiple = usernames.length > 1;
-  dialogBoxEl.innerHTML = `
-    <div class="dialog-title">Delete ${isMultiple ? 'Accounts' : 'Account'}</div>
-    <div class="dialog-text">You are about to delete ${isMultiple ? `${usernames.length} accounts` : `<strong>${usernames[0]}</strong>`}. This action cannot be undone.</div>
-    <div class="dialog-actions">
-      <button class="btn-primary" id="cancelDialog">Cancel</button>
-      <button class="btn-primary destructive" id="confirmDelete">Delete</button>
-    </div>
-  `;
-  dialogOverlayEl.classList.add('active');
-  $('cancelDialog').onclick = closeDialog;
-  $('confirmDelete').onclick = async () => {
-    const confirmBtn = $('confirmDelete');
-    confirmBtn.disabled = true;
-    setStatus('loading');
-    try {
-      await api('delete-accounts', { targets: usernames });
-      toast(isMultiple ? `Deleted ${usernames.length} accounts` : `Deleted ${usernames[0]}`);
-      await refreshAccounts();
-      closeDialog();
-      setStatus('saved');
-    } catch (err) {
-      console.error(err);
-      toast(err.message || 'Failed to delete account(s)', 'error');
-      setStatus('ready');
-    } finally {
-      confirmBtn.disabled = false;
-    }
-  };
-}
-
-bulkDeleteBtnEl.addEventListener('click', () => {
-  const users = Array.from(selectedAccounts);
-  if (users.length > 0) openDeleteDialog(users);
-});
-
-(async function boot() {
-  const stored = getStoredUsername();
-  if (!stored) { showLogin(); return; }
-
-  const validated = await checkSession(stored);
-  if (validated) {
-    enterApp(validated);
-  } else {
-    clearSession();
-    showLogin();
-  }
-})();
-</script>
-
-
-<!--
-  ════════════════════════════════════════════════════════════════════════
-  BACKEND — supabase/functions/enkryption/index.ts
-  ════════════════════════════════════════════════════════════════════════
-  This does NOT run in the browser. It must be deployed to Supabase as an
-  Edge Function; it holds SESSION_SECRET and the service-role key, which
-  can never be shipped to client-side code (anyone could read them in dev
-  tools and forge session tokens or hit your database with full admin
-  rights). It's embedded here only so the whole project travels as one
-  file — copy everything between the BEGIN/END markers into its own file
-  named supabase/functions/enkryption/index.ts before deploying.
-
-  Deploy:
-    supabase functions deploy enkryption
-  Secrets needed (supabase secrets set ...):
-    SESSION_SECRET   — random 32+ byte string
-    (SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are injected automatically)
-
-  Also requires a Postgres table:
-    create table enkryption_users (
-      username text primary key,
-      password_hash text not null,
-      owner text references enkryption_users(username)
-    );
-
-  ── BEGIN supabase/functions/enkryption/index.ts ──────────────────────
-
-// supabase/functions/enkryption/index.ts
-//
-// NOTE ON AUTH MODEL (per spec §B4): the original design had no server-side
-// session — just a username/password check with no token, and the frontend
-// was treating `username` in the request body as proof of identity. That is
-// not safe: any caller could pass any username and act as that account.
-//
-// Approach chosen: on login/register we mint a signed, short-lived session
-// token (HMAC-SHA256 over `${username}.${expiry}`, keyed by a server-only
-// secret `SESSION_SECRET`) and return it to the client as `token`. The
-// frontend is expected to store it and send it back as `sessionToken` in the
-// body (or an `x-session-token` header — both are accepted) on every
-// subsequent call. `session-check` and all account actions verify this token
-// and derive the authenticated username from IT, never from the client's
-// claimed `username` field. This requires one small addition on the frontend
-// (storing `data.token` next to `data.username` and sending it back); that
-// single extra field is noted inline in the frontend diff above.
-//
-// Deploy with: supabase functions deploy enkryption
-// Secrets needed: SESSION_SECRET (random 32+ byte string), plus the usual
-// SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY which Supabase injects automatically.
-
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-session-token",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-}
-
-const SESSION_SECRET = Deno.env.get("SESSION_SECRET") ?? "";
-const SESSION_TTL_MS = 1000 * 60 * 60 * 12; // 12 hours
-
-async function hmac(data: string): Promise<string> {
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(SESSION_SECRET),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(data));
-  return btoa(String.fromCharCode(...new Uint8Array(sig))).replace(/[+/=]/g, (c) =>
-    ({ "+": "-", "/": "_", "=": "" }[c]!)
-  );
-}
-
-async function issueToken(username: string): Promise<string> {
-  const expiry = Date.now() + SESSION_TTL_MS;
-  const userB64 = btoa(username);
-  const payload = `${userB64}.${expiry}`;
-  const sig = await hmac(payload);
-  return `${payload}.${sig}`;
-}
-
-// FINAL FIX: Token format is base64(username) + '.' + expiry + '.' + sig
-// This fixes the dot-in-username bug - username can contain . or @ safely.
-async function verifyToken(token: string | undefined | null): Promise<string | null> {
-  if (!token) return null;
-  const parts = token.split(".");
-  if (parts.length !== 3) return null;
-  const [userB64, expiryStr, sig] = parts;
-  let username: string;
-  try { username = atob(userB64); } catch { return null; }
-  const expected = await hmac(`${userB64}.${expiryStr}`);
-  if (expected !== sig) return null;
-  const expiry = Number(expiryStr);
-  if (!Number.isFinite(expiry) || Date.now() > expiry) return null;
-  return username;
-}
-
-// Enforces that `candidate` is either the owner itself or a `<sub>@<owner>`
-// sub-account belonging to the owner.
-function belongsToOwner(candidate: string, owner: string): boolean {
-  return candidate === owner || candidate.endsWith(`@${owner}`);
-}
-
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
-
-  try {
-    if (req.method !== "POST") {
-      return json({ success: false, error: "method not allowed" }, 405);
-    }
-
-    let body: Record<string, unknown>;
-    try {
-      body = await req.json();
-    } catch {
-      return json({ success: false, error: "invalid JSON body" }, 400);
-    }
-
-    const action = String(body.action ?? "");
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    );
-
-    const tokenFromReq =
-      (body.sessionToken as string | undefined) ??
-      req.headers.get("x-session-token") ??
-      undefined;
-
-    switch (action) {
-      case "register": {
-        const username = String(body.username ?? "").trim();
-        const password = String(body.password ?? "");
-        if (!username || !password) {
-          return json({ success: false, error: "username and password are required" }, 400);
-        }
-
-        const { data: existing } = await supabase
-          .from("enkryption_users")
-          .select("username")
-          .eq("username", username)
-          .maybeSingle();
-        if (existing) {
-          return json({ success: false, error: "username already taken" }, 409);
-        }
-
-        const passwordHash = await hashPassword(password);
-        const { error } = await supabase
-          .from("enkryption_users")
-          .insert({ username, password_hash: passwordHash, owner: null });
-        if (error) return json({ success: false, error: error.message }, 400);
-
-        const token = await issueToken(username);
-        return json({ success: true, username, created: true, token });
-      }
-
-      case "login": {
-        const username = String(body.username ?? "").trim();
-        const password = String(body.password ?? "");
-        const { data: user } = await supabase
-          .from("enkryption_users")
-          .select("username, password_hash")
-          .eq("username", username)
-          .maybeSingle();
-        if (!user || !(await verifyPassword(password, user.password_hash))) {
-          return json({ success: false, error: "invalid username or password" }, 401);
-        }
-        const token = await issueToken(username);
-        return json({ success: true, username, created: false, token });
-      }
-
-      case "session-check": {
-        const username = await verifyToken(tokenFromReq);
-        if (!username) return json({ success: false, error: "not authenticated" }, 401);
-        return json({ success: true, username });
-      }
-
-      case "list-accounts": {
-        const owner = await verifyToken(tokenFromReq);
-        if (!owner) return json({ success: false, error: "not authenticated" }, 401);
-
-        const { data, error } = await supabase
-          .from("enkryption_users")
-          .select("username")
-          .eq("owner", owner);
-        if (error) return json({ success: false, error: error.message }, 400);
-
-        return json({ success: true, accounts: (data ?? []).map((r) => ({ username: r.username })) });
-      }
-
-      case "add-account": {
-        const owner = await verifyToken(tokenFromReq);
-        if (!owner) return json({ success: false, error: "not authenticated" }, 401);
-
-        const sub = String(body.sub ?? "").trim();
-        const password = String(body.password ?? "");
-        if (!sub || !/^[a-zA-Z0-9]+$/.test(sub) || !password) {
-          return json({ success: false, error: "invalid sub-account username or password" }, 400);
-        }
-        const fullUsername = `${sub}@${owner}`;
-
-        const { data: existing } = await supabase
-          .from("enkryption_users")
-          .select("username")
-          .eq("username", fullUsername)
-          .maybeSingle();
-        if (existing) return json({ success: false, error: "that account already exists" }, 409);
-
-        const passwordHash = await hashPassword(password);
-        const { error } = await supabase
-          .from("enkryption_users")
-          .insert({ username: fullUsername, password_hash: passwordHash, owner });
-        if (error) return json({ success: false, error: error.message }, 400);
-
-        return json({ success: true, username: fullUsername });
-      }
-
-      case "reroll-password": {
-        const owner = await verifyToken(tokenFromReq);
-        if (!owner) return json({ success: false, error: "not authenticated" }, 401);
-
-        const target = String(body.target ?? "");
-        if (!belongsToOwner(target, owner) || target === owner) {
-          return json({ success: false, error: "not authorized for this account" }, 403);
-        }
-
-        const newPassword = genRandomPassword();
-        const passwordHash = await hashPassword(newPassword);
-        const { data: updated, error } = await supabase
-          .from("enkryption_users")
-          .update({ password_hash: passwordHash })
-          .eq("username", target)
-          .eq("owner", owner)
-          .select("username");
-        if (error) return json({ success: false, error: error.message }, 400);
-        if (!updated || updated.length === 0) return json({ success: false, error: "account not found" }, 404);
-
-        return json({ success: true, password: newPassword });
-      }
-
-      case "delete-accounts": {
-        const owner = await verifyToken(tokenFromReq);
-        if (!owner) return json({ success: false, error: "not authenticated" }, 401);
-
-        const targets = Array.isArray(body.targets) ? body.targets.map(String) : [];
-        if (targets.length === 0) {
-          return json({ success: false, error: "no targets given" }, 400);
-        }
-        if (!targets.every((t) => belongsToOwner(t, owner) && t !== owner)) {
-          return json({ success: false, error: "not authorized for one or more targets" }, 403);
-        }
-
-        const { data: deletedRows, error } = await supabase
-          .from("enkryption_users")
-          .delete()
-          .in("username", targets)
-          .eq("owner", owner)
-          .select("username");
-        if (error) return json({ success: false, error: error.message }, 400);
-
-        return json({ success: true, deleted: deletedRows ? deletedRows.length : targets.length });
-      }
-
-      default:
-        return json({ success: false, error: "unknown action" }, 400);
-    }
-  } catch (e) {
-    return json({ success: false, error: String(e) }, 500);
-  }
-});
-
-function genRandomPassword(len = 16): string {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*";
-  const buf = new Uint32Array(len);
-  crypto.getRandomValues(buf);
-  let out = "";
-  for (let i = 0; i < len; i++) out += chars[buf[i] % chars.length];
-  return out;
-}
-
-async function hashPassword(password: string): Promise<string> {
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const keyMaterial = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
-  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt, iterations: 100_000, hash: "SHA-256" }, keyMaterial, 256);
-  const hashB64 = btoa(String.fromCharCode(...new Uint8Array(bits)));
-  const saltB64 = btoa(String.fromCharCode(...salt));
-  return `pbkdf2$100000$${saltB64}$${hashB64}`;
-}
-
-async function verifyPassword(password: string, stored: string): Promise<boolean> {
-  const parts = stored.split("$");
-  if (parts.length !== 4) return false;
-  const [, iterStr, saltB64, hashB64] = parts;
-  const iterations = Number(iterStr);
-  const salt = Uint8Array.from(atob(saltB64), (c) => c.charCodeAt(0));
-  const keyMaterial = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
-  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt, iterations, hash: "SHA-256" }, keyMaterial, 256);
-  const computedB64 = btoa(String.fromCharCode(...new Uint8Array(bits)));
-  return computedB64 === hashB64;
-}
-
-
-  ── END supabase/functions/enkryption/index.ts ────────────────────────
--->
-
-</body>
-</html>
+keyEl.addEventListener('pointerup', endDrag
