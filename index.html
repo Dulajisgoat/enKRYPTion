@@ -1542,4 +1542,456 @@ const endDrag = () => {
   keyEl.classList.remove('dragging');
   if (distToHole() < 70) unlock();
 };
-keyEl.addEventListener('pointerup', endDrag
+keyEl.addEventListener('pointerup', endDrag);
+keyEl.addEventListener('pointercancel', endDrag);
+
+keyEl.addEventListener('keydown', (e) => {
+  if (state !== 'locked') return;
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); unlock(); return; }
+  const step = e.shiftKey ? 48 : 16;
+  const moves = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+  if (!moves[e.key]) return;
+  e.preventDefault();
+  kx += moves[e.key][0]; ky += moves[e.key][1];
+  applyPos(); keyHint.classList.add('gone');
+  sway(moves[e.key][0] * 0.3);
+  hole = holePoint();
+  if (distToHole() < 16) unlock();
+});
+window.addEventListener('resize', () => {
+  if (state !== 'locked') return;
+  applyPos();
+  hole = holePoint();
+});
+
+/* ---------- sign out + boot ---------- */
+const logoutLink = $('logoutLink');
+const signOut = () => { clearSession(); showLogin(); };
+logoutLink.addEventListener('click', signOut);
+logoutLink.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); signOut(); } });
+
+/* ---------- dashboard ---------- */
+let currentUsername = "";
+let selectedAccounts = new Set();
+
+const orgListEl = $('orgList');
+const mainContentEl = $('mainContent');
+const statusIndicatorEl = $('statusIndicator');
+const statusTextEl = $('statusText');
+const bulkDeleteBtnEl = $('bulkDeleteBtn');
+const addAccountBtnEl = $('addAccountBtn');
+const dialogOverlayEl = $('dialogOverlay');
+const dialogBoxEl = $('dialogBox');
+
+function toast(msg, type = 'success') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  const icon = type === 'success'
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+  el.innerHTML = `${icon}<span></span>`;
+  el.querySelector('span').textContent = msg;
+  $('toastContainer').appendChild(el);
+  setTimeout(() => {
+    el.classList.add('exit');
+    setTimeout(() => el.remove(), 250);
+  }, 3500);
+}
+
+function setStatus(status) {
+  if (status === 'ready') {
+    statusTextEl.textContent = 'Ready';
+    statusIndicatorEl.className = 'status-indicator';
+  } else if (status === 'loading') {
+    statusTextEl.textContent = 'Working…';
+    statusIndicatorEl.className = 'status-indicator loading';
+  } else if (status === 'saved') {
+    statusTextEl.textContent = 'Done';
+    statusIndicatorEl.className = 'status-indicator saved';
+    setTimeout(() => setStatus('ready'), 1800);
+  }
+}
+
+function genRandomPassword(len = 16) {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*';
+  const out = [];
+  const cutoff = 256 - (256 % chars.length);
+  const buf = new Uint8Array(1);
+  while (out.length < len) {
+    crypto.getRandomValues(buf);
+    if (buf[0] < cutoff) out.push(chars[buf[0] % chars.length]);
+  }
+  return out.join('');
+}
+
+// Server-authoritative API call. Detects 401 and forces re-login.
+async function api(action, payload = {}) {
+  let r;
+  try {
+    r = await fetch(CONFIG.FUNCTION_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': CONFIG.ANON_KEY,
+        'Authorization': `Bearer ${CONFIG.ANON_KEY}`,
+      },
+      body: JSON.stringify({ action, username: currentUsername, sessionToken: getStoredToken(), ...payload }),
+    });
+  } catch (e) {
+    throw new Error('Cannot reach server - ' + e.message + '. Are you on http://localhost:8000/ and is function enkryption deployed?');
+  }
+  if (r.status === 401) {
+    clearSession();
+    showLogin();
+    throw new Error('Session expired — please log in again.');
+  }
+  const raw = await r.text();
+  let data; try { data = JSON.parse(raw); } catch { data = null; }
+  if (!r.ok || !data || data.success === false) {
+    throw new Error((data && (data.error || data.message)) || `HTTP ${r.status}: ${raw.slice(0, 200)}`);
+  }
+  return data;
+}
+
+async function renderDashboard(username) {
+  if (!username) return;
+  orgListEl.innerHTML = `
+    <div class="org-item active">
+      <span class="org-dot"></span>
+      <div class="org-item-content">
+        <div class="org-item-title">${esc(username)}</div>
+        <div class="org-item-sub">Personal Organization</div>
+      </div>
+    </div>
+  `;
+  setStatus('loading');
+  mainContentEl.innerHTML = `<div class="org-header"><div><div class="org-title">${esc(username)}</div></div></div><div class="empty-state"><div class="empty-state-title">Loading accounts…</div></div>`;
+  try {
+    const { accounts } = await api('list-accounts');
+    renderAccountsTable(accounts);
+    setStatus('ready');
+  } catch (err) {
+    console.error(err);
+    toast(err.message || 'Failed to load accounts', 'error');
+    setStatus('ready');
+  }
+}
+
+async function refreshAccounts() {
+  const { accounts } = await api('list-accounts');
+  renderAccountsTable(accounts);
+  return accounts;
+}
+
+function renderEmptyState() {
+  mainContentEl.innerHTML = `
+    <div class="org-header"><div><div class="org-title">${esc(currentUsername)}</div></div></div>
+    <div class="org-meta"><span>Organization</span><span class="dot"></span><span>Active</span></div>
+    <div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      <div class="empty-state-title">No Sub-Accounts Yet</div>
+      <div class="empty-state-text">Create your first sub-account to manage access for this organization.</div>
+    </div>
+  `;
+}
+
+function renderAccountsTable(accounts) {
+  if (!accounts || accounts.length === 0) { renderEmptyState(); return; }
+
+  selectedAccounts.clear();
+  bulkDeleteBtnEl.style.display = 'none';
+
+  const rowsHtml = accounts.map(acc => {
+    const u = esc(acc.username);
+    return `
+    <tr>
+      <td class="checkbox-cell"><input type="checkbox" data-user="${u}" class="row-checkbox"></td>
+      <td class="td-username">${u}</td>
+      <td>
+        <div class="row-actions">
+          <button class="btn-row" data-action="reroll" data-user="${u}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            Reroll
+          </button>
+          <button class="btn-row danger" data-action="delete" data-user="${u}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            Delete
+          </button>
+        </div>
+      </td>
+    </tr>
+  `;
+  }).join('');
+
+  mainContentEl.innerHTML = `
+    <div class="org-header"><div><div class="org-title">${esc(currentUsername)}</div></div></div>
+    <div class="org-meta"><span>Accounts</span><span class="dot"></span><span>${accounts.length} total</span></div>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr>
+          <th class="checkbox-cell"><input type="checkbox" id="selectAll"></th>
+          <th>Username</th>
+          <th style="text-align:right;">Actions</th>
+        </tr></thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+    </div>
+  `;
+  attachTableEventListeners();
+}
+
+function attachTableEventListeners() {
+  document.querySelectorAll('.row-checkbox').forEach(cb => {
+    cb.addEventListener('change', (e) => {
+      const user = e.target.dataset.user;
+      if (e.target.checked) selectedAccounts.add(user); else selectedAccounts.delete(user);
+      updateBulkDeleteBtn();
+    });
+  });
+  const selectAllCb = $('selectAll');
+  if (selectAllCb) {
+    selectAllCb.addEventListener('change', (e) => {
+      document.querySelectorAll('.row-checkbox').forEach(cb => {
+        cb.checked = e.target.checked;
+        if (e.target.checked) selectedAccounts.add(cb.dataset.user); else selectedAccounts.delete(cb.dataset.user);
+      });
+      updateBulkDeleteBtn();
+    });
+  }
+  document.querySelectorAll('.btn-row').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.action, user = btn.dataset.user;
+      if (action === 'reroll') openRerollDialog(user);
+      else if (action === 'delete') openDeleteDialog([user]);
+    });
+  });
+}
+
+function updateBulkDeleteBtn() {
+  if (selectedAccounts.size > 0) {
+    bulkDeleteBtnEl.style.display = 'flex';
+    bulkDeleteBtnEl.textContent = `Delete Selected (${selectedAccounts.size})`;
+  } else {
+    bulkDeleteBtnEl.style.display = 'none';
+  }
+}
+
+function closeDialog() { dialogOverlayEl.classList.remove('active'); }
+dialogOverlayEl.addEventListener('click', (e) => { if (e.target === dialogOverlayEl) closeDialog(); });
+
+addAccountBtnEl.addEventListener('click', () => {
+  dialogBoxEl.innerHTML = `
+    <div class="dialog-title">Add Sub-Account</div>
+    <div class="dialog-text">Create a new account under the <strong>${esc(currentUsername)}</strong> organization.</div>
+    <div class="dialog-input-group">
+      <label>Username</label>
+      <input type="text" id="subUsernameInput" class="dialog-input" placeholder="name" autocomplete="off">
+      <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">
+        Final username: <span id="fullUsernamePreview">name@${esc(currentUsername)}</span>
+      </div>
+    </div>
+    <div class="dialog-input-group">
+      <label>Password Method</label>
+      <div class="toggle-group">
+        <button class="toggle-btn active" id="randomPassBtn">Generate Random</button>
+        <button class="toggle-btn" id="customPassBtn">Custom Password</button>
+      </div>
+    </div>
+    <div class="dialog-input-group" id="customPassGroup" style="display:none;">
+      <label>Custom Password</label>
+      <input type="text" id="customPassInput" class="dialog-input" placeholder="Min 6 characters">
+    </div>
+    <div class="dialog-actions">
+      <button class="btn-primary" id="cancelDialog">Cancel</button>
+      <button class="btn-primary main" id="confirmAddAccount">Create Account</button>
+    </div>
+  `;
+  dialogOverlayEl.classList.add('active');
+
+  const subInput = $('subUsernameInput');
+  const preview = $('fullUsernamePreview');
+  subInput.addEventListener('input', () => {
+    preview.textContent = `${subInput.value || 'name'}@${currentUsername}`;
+  });
+
+  const randomBtn = $('randomPassBtn'), customBtn = $('customPassBtn'), customPassGroup = $('customPassGroup');
+  randomBtn.onclick = () => { randomBtn.classList.add('active'); customBtn.classList.remove('active'); customPassGroup.style.display = 'none'; };
+  customBtn.onclick = () => { customBtn.classList.add('active'); randomBtn.classList.remove('active'); customPassGroup.style.display = 'block'; };
+
+  $('cancelDialog').onclick = closeDialog;
+  $('confirmAddAccount').onclick = async () => {
+    const sub = subInput.value.trim();
+    if (!sub || !/^[a-zA-Z0-9]{1,32}$/.test(sub)) { toast('Invalid username. Use only letters and numbers.', 'error'); return; }
+
+    const useRandom = randomBtn.classList.contains('active');
+    const customPass = $('customPassInput').value;
+    if (!useRandom && customPass.trim().length < 6) { toast('Custom password must be at least 6 characters.', 'error'); return; }
+
+    const confirmBtn = $('confirmAddAccount');
+    const password = useRandom ? genRandomPassword() : customPass.trim();
+
+    confirmBtn.disabled = true;
+    setStatus('loading');
+    try {
+      const result = await api('add-account', { sub, password });
+      setStatus('saved');
+      openCredentialsDialog(result.username, password, useRandom);
+    } catch (err) {
+      console.error(err);
+      toast(err.message || 'Failed to create account', 'error');
+      setStatus('ready');
+    } finally {
+      confirmBtn.disabled = false;
+    }
+  };
+});
+
+function openCredentialsDialog(username, password, isRandom) {
+  dialogBoxEl.innerHTML = `
+    <div class="dialog-title">Account Created</div>
+    <div class="dialog-text">
+      ${isRandom ? 'A secure random password was generated.' : 'Account is ready.'}
+      Please copy the credentials now. For security reasons, the password will not be shown again.
+    </div>
+    <div class="dialog-input-group"><label>Username</label><input type="text" class="dialog-input mono" value="${esc(username)}" readonly></div>
+    <div class="dialog-input-group"><label>Password</label><input type="text" class="dialog-input mono" value="${esc(password)}" readonly></div>
+    <div class="dialog-actions">
+      <button class="btn-primary" id="copyCredsBtn">Copy Credentials</button>
+      <button class="btn-primary main" id="acceptCredsBtn">I've saved them</button>
+    </div>
+  `;
+  dialogOverlayEl.classList.add('active');
+  $('copyCredsBtn').onclick = () => {
+    navigator.clipboard.writeText(`Username: ${username}\nPassword: ${password}`)
+      .then(() => toast('Credentials copied to clipboard'));
+  };
+  $('acceptCredsBtn').onclick = async () => {
+    closeDialog();
+    try { await refreshAccounts(); }
+    catch (err) { console.error(err); toast(err.message || 'Failed to refresh accounts', 'error'); }
+  };
+}
+
+function openRerollDialog(username) {
+  dialogBoxEl.innerHTML = `
+    <div class="dialog-title">Reroll Password</div>
+    <div class="dialog-text">Are you sure you want to generate a new password for <strong>${esc(username)}</strong>? The old password will immediately stop working.</div>
+    <div class="dialog-actions">
+      <button class="btn-primary" id="cancelDialog">Cancel</button>
+      <button class="btn-primary main" id="confirmReroll">Generate New Password</button>
+    </div>
+  `;
+  dialogOverlayEl.classList.add('active');
+  $('cancelDialog').onclick = closeDialog;
+  $('confirmReroll').onclick = async () => {
+    const confirmBtn = $('confirmReroll');
+    confirmBtn.disabled = true;
+    setStatus('loading');
+    try {
+      const { password } = await api('reroll-password', { target: username });
+      openNewPasswordDialog(username, password);
+    } catch (err) {
+      console.error(err);
+      toast(err.message || 'Failed to reroll password', 'error');
+      setStatus('ready');
+    } finally {
+      confirmBtn.disabled = false;
+    }
+  };
+}
+
+function openNewPasswordDialog(username, newPassword) {
+  dialogBoxEl.innerHTML = `
+    <div class="dialog-title">Password Updated</div>
+    <div class="dialog-text">The password for <strong>${esc(username)}</strong> has been rerolled. Copy the new password now.</div>
+    <div class="dialog-input-group"><label>New Password</label><input type="text" class="dialog-input mono" value="${esc(newPassword)}" readonly></div>
+    <div class="dialog-actions">
+      <button class="btn-primary" id="copyPassBtn">Copy Password</button>
+      <button class="btn-primary main" id="closeDialogBtn">Done</button>
+    </div>
+  `;
+  dialogOverlayEl.classList.add('active');
+  setStatus('saved');
+  $('copyPassBtn').onclick = () => navigator.clipboard.writeText(newPassword).then(() => toast('Password copied to clipboard'));
+  $('closeDialogBtn').onclick = closeDialog;
+}
+
+function openDeleteDialog(usernames) {
+  const isMultiple = usernames.length > 1;
+  const what = isMultiple
+    ? `${usernames.length} accounts`
+    : `<strong>${esc(usernames[0])}</strong>`;
+  dialogBoxEl.innerHTML = `
+    <div class="dialog-title">Delete ${isMultiple ? 'Accounts' : 'Account'}</div>
+    <div class="dialog-text">You are about to delete ${what}. This action cannot be undone.</div>
+    <div class="dialog-actions">
+      <button class="btn-primary" id="cancelDialog">Cancel</button>
+      <button class="btn-primary destructive" id="confirmDelete">Delete</button>
+    </div>
+  `;
+  dialogOverlayEl.classList.add('active');
+  $('cancelDialog').onclick = closeDialog;
+  $('confirmDelete').onclick = async () => {
+    const confirmBtn = $('confirmDelete');
+    confirmBtn.disabled = true;
+    setStatus('loading');
+    try {
+      await api('delete-accounts', { targets: usernames });
+      toast(isMultiple ? `Deleted ${usernames.length} accounts` : `Deleted ${usernames[0]}`);
+      await refreshAccounts();
+      closeDialog();
+      setStatus('saved');
+    } catch (err) {
+      console.error(err);
+      toast(err.message || 'Failed to delete account(s)', 'error');
+      setStatus('ready');
+    } finally {
+      confirmBtn.disabled = false;
+    }
+  };
+}
+
+bulkDeleteBtnEl.addEventListener('click', () => {
+  const users = Array.from(selectedAccounts);
+  if (users.length > 0) openDeleteDialog(users);
+});
+
+(async function boot() {
+  const stored = getStoredUsername();
+  if (!stored) { showLogin(); return; }
+
+  const validated = await checkSession(stored);
+  if (validated === null) {
+    // Auth failure — token expired / revoked
+    clearSession();
+    showLogin();
+  } else if (validated) {
+    enterApp(validated);
+  } else {
+    // Network error — proceed optimistically. If the token is actually bad,
+    // the first api() call will 401 and we'll bounce to login then.
+    enterApp(stored);
+  }
+})();
+</script>
+
+<!--
+  ════════════════════════════════════════════════════════════════════════
+  BACKEND — see supabase/functions/enkryption/index.ts (shipped as
+  Enkryption-Edge-Function-FINAL.ts in this bundle). Deploy with:
+    supabase functions deploy enkryption --project-ref fkkdzwzetthnngolakax
+  Required secret: SESSION_SECRET (random 32+ byte string).
+  Required table / RLS setup: see Enkryption-Sql-FINAL.sql.
+  ════════════════════════════════════════════════════════════════════════
+-->
+</body>
+</html>
