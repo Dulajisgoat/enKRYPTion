@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -1484,7 +1484,10 @@
     }
 </style>
 </head>
-<body>
+<body><body>
+<!-- ENKRYPTION FINAL LOCKED IN - Project fkkdzwzetthnngolakax - Function https://fkkdzwzetthnngolakax.supabase.co/functions/v1/enkryption -->
+<div id="fileBanner" style="display:none; background:#b91c1c; color:white; text-align:center; padding:10px; font-family:sans-serif; font-size:14px; position:fixed; top:0; left:0; right:0; z-index:9999;">You opened via file:// - this will fail with CORS. Close this, run: python -m http.server 8000, then open http://localhost:8000/Enkryption_FINAL.html</div>
+<script>if(window.location.protocol==='file:'){document.getElementById('fileBanner').style.display='block';}</script>
 
 <!-- ============ LOGIN SCREEN ============ -->
 <div class="login-screen" id="loginScreen">
@@ -1640,6 +1643,7 @@
  * which the browser's CORS check will reject against the edge function's
  * CORS headers — all API calls will fail with a network/CORS error.
  */
+/* LOCKED IN CONFIG - DO NOT CHANGE - Project fkkdzwzetthnngolakax */
 const CONFIG = {
   FUNCTION_URL: "https://fkkdzwzetthnngolakax.supabase.co/functions/v1/enkryption",
   ANON_KEY: "sb_publishable_lHf4CUfijJ2VufzW38YFmA_qNBei0eF"
@@ -1752,12 +1756,15 @@ async function auth(action) {
     } catch {}
     setTimeout(() => enterApp(data.username), 700);
   } catch (error) {
+    // LOCKED IN: Project fkkdzwzetthnngolakax - If you see this, the browser never reached Supabase.
+    // Most common causes: 1) You opened via file:/// instead of http://localhost:8000/  2) Function 'enkryption' not deployed  3) Browser cache still has old file.
+    const isFile = window.location.protocol === 'file:';
     if (error instanceof TypeError) {
-      showLoginMessage('Cannot reach server (network or CORS). Check the Network tab.');
+      showLoginMessage(isFile ? 'Cannot reach server - You opened via file:///. Use http://localhost:8000/Enkryption_FINAL.html instead.' : 'Cannot reach server (network or CORS). Function may not be deployed. Open F12 > Console for the real error. ' + error.message);
     } else {
       showLoginMessage('Error: ' + error.message);
     }
-    console.error(error);
+    console.error('[Enkryption] fetch failed. FUNCTION_URL=', CONFIG.FUNCTION_URL, 'protocol=', window.location.protocol, error);
   } finally {
     registerBtn.disabled = false;
     loginBtn.disabled = false;
@@ -2016,7 +2023,9 @@ function genRandomPassword(len = 16) {
 // Real backend call for everything account-related. No localStorage involved —
 // the server is the only source of truth for accounts/passwords.
 async function api(action, payload = {}) {
-  const r = await fetch(CONFIG.FUNCTION_URL, {
+  let r;
+  try {
+    r = await fetch(CONFIG.FUNCTION_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -2025,6 +2034,9 @@ async function api(action, payload = {}) {
     },
     body: JSON.stringify({ action, username: currentUsername, sessionToken: getStoredToken(), ...payload }),
   });
+  } catch (e) {
+    throw new Error('Cannot reach server - ' + e.message + '. Are you on http://localhost:8000/ and is function enkryption deployed?');
+  }
   const raw = await r.text();
   let data; try { data = JSON.parse(raw); } catch { data = null; }
   if (!r.ok || !data || data.success === false) {
@@ -2434,18 +2446,22 @@ async function hmac(data: string): Promise<string> {
 
 async function issueToken(username: string): Promise<string> {
   const expiry = Date.now() + SESSION_TTL_MS;
-  const payload = `${username}.${expiry}`;
+  const userB64 = btoa(username);
+  const payload = `${userB64}.${expiry}`;
   const sig = await hmac(payload);
   return `${payload}.${sig}`;
 }
 
-// Returns the verified username, or null if the token is missing/expired/invalid.
+// FINAL FIX: Token format is base64(username) + '.' + expiry + '.' + sig
+// This fixes the dot-in-username bug - username can contain . or @ safely.
 async function verifyToken(token: string | undefined | null): Promise<string | null> {
   if (!token) return null;
   const parts = token.split(".");
   if (parts.length !== 3) return null;
-  const [username, expiryStr, sig] = parts;
-  const expected = await hmac(`${username}.${expiryStr}`);
+  const [userB64, expiryStr, sig] = parts;
+  let username: string;
+  try { username = atob(userB64); } catch { return null; }
+  const expected = await hmac(`${userB64}.${expiryStr}`);
   if (expected !== sig) return null;
   const expiry = Number(expiryStr);
   if (!Number.isFinite(expiry) || Date.now() > expiry) return null;
@@ -2585,13 +2601,14 @@ Deno.serve(async (req) => {
 
         const newPassword = genRandomPassword();
         const passwordHash = await hashPassword(newPassword);
-        const { error, count } = await supabase
+        const { data: updated, error } = await supabase
           .from("enkryption_users")
           .update({ password_hash: passwordHash })
           .eq("username", target)
-          .eq("owner", owner);
+          .eq("owner", owner)
+          .select("username");
         if (error) return json({ success: false, error: error.message }, 400);
-        if (count === 0) return json({ success: false, error: "account not found" }, 404);
+        if (!updated || updated.length === 0) return json({ success: false, error: "account not found" }, 404);
 
         return json({ success: true, password: newPassword });
       }
@@ -2608,14 +2625,15 @@ Deno.serve(async (req) => {
           return json({ success: false, error: "not authorized for one or more targets" }, 403);
         }
 
-        const { error, count } = await supabase
+        const { data: deletedRows, error } = await supabase
           .from("enkryption_users")
           .delete()
           .in("username", targets)
-          .eq("owner", owner);
+          .eq("owner", owner)
+          .select("username");
         if (error) return json({ success: false, error: error.message }, 400);
 
-        return json({ success: true, deleted: count ?? targets.length });
+        return json({ success: true, deleted: deletedRows ? deletedRows.length : targets.length });
       }
 
       default:
