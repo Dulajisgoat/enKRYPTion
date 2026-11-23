@@ -1633,10 +1633,23 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
+/*
+ * IMPORTANT: This app calls a Supabase Edge Function over fetch(). It must be
+ * served over http:// or https:// (e.g. `python3 -m http.server`, a static
+ * host, etc). Opening this file directly via file:// sends `Origin: null`,
+ * which the browser's CORS check will reject against the edge function's
+ * CORS headers — all API calls will fail with a network/CORS error.
+ */
 const CONFIG = {
-  FUNCTION_URL: "https://yrktytiqzguciapwlxbb.supabase.co/functions/v1/enkryption",
-  ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlya3R5dGlxemd1Y2lhcHdseGJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxMDEwMDEsImV4cCI6MjExMDY3NzAwMX0.569Zb2Fs3347Y0MDKEHecfwvos6PE8ANZhv7OtWLhQ0"
+  FUNCTION_URL: "https://fkkzdwzetthnngolakax.supabase.co/functions/v1/enkryption",
+  ANON_KEY: "sb_publishable_lHf4CUfijJ2VufzW38YFmA_qNBei0eF"
 };
+// HOW TO FILL THE PLACEHOLDERS:
+// 1. FUNCTION_URL: In Supabase Dashboard, project fkkdzwzetthnngolakax, Edge Functions, click enkryption.
+//    Copy its URL. It should look like:
+//    https://fkkdzwzetthnngolakax.supabase.co/functions/v1/enkryption
+// 2. ANON_KEY: In the same project, Settings, API, copy "anon public" key.
+//    Do NOT paste the service_role key here.
 
 const $ = (id) => document.getElementById(id);
 const loginScreen = $('loginScreen'), appEl = $('app'), messageEl = $('message');
@@ -1645,9 +1658,42 @@ const registerBtn = $('registerBtn'), loginBtn = $('loginBtn');
 const keyEl = $('key'), keyArt = $('keyArt'), keyStage = $('keyStage'), keyHint = $('keyHint');
 const vaultEl = $('vault'), holeEl = $('vaultHole'), insideEl = $('inside'), lockBtn = $('lockBtn');
 
-/* ---------- session (username only) ---------- */
+/* ---------- session (username only, re-validated against the server) ---------- */
 function getStoredUsername() { try { return localStorage.getItem('username'); } catch { return null; } }
-function clearSession() { try { localStorage.removeItem('username'); } catch {} }
+function getStoredToken() { try { return localStorage.getItem('sessionToken'); } catch { return null; } }
+function clearSession() {
+  try { localStorage.removeItem('username'); localStorage.removeItem('sessionToken'); } catch {}
+}
+
+// Raw POST used only before currentUsername/session exist (auth + session-check).
+async function rawApiCall(action, payload = {}) {
+  const response = await fetch(CONFIG.FUNCTION_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': CONFIG.ANON_KEY,
+      'Authorization': `Bearer ${CONFIG.ANON_KEY}`,
+    },
+    body: JSON.stringify({ action, ...payload }),
+  });
+  const raw = await response.text();
+  let data; try { data = JSON.parse(raw); } catch { data = null; }
+  return { response, data, raw };
+}
+
+// Verifies the stored username against the server instead of trusting
+// localStorage blindly. Returns the validated username, or null.
+async function checkSession(username) {
+  const token = getStoredToken();
+  if (!username || !token) return null;
+  try {
+    const { response, data } = await rawApiCall('session-check', { username, sessionToken: token });
+    if (response.ok && data && data.success) return data.username || username;
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 /* ---------- login / register ---------- */
 function showLoginMessage(text, type = 'error') {
@@ -1693,25 +1739,36 @@ async function auth(action) {
       },
       body: JSON.stringify({ action, username, password }),
     });
-    const data = await response.json();
 
-    if (!response.ok || !data.success) {
-      showLoginMessage(data.error || data.message || `Error ${response.status}`);
+    const raw = await response.text();
+    let data; try { data = JSON.parse(raw); } catch { data = null; }
+
+    if (!response.ok || !data || !data.success) {
+      const detail = (data && (data.error || data.message)) || raw.slice(0, 200);
+      showLoginMessage(`HTTP ${response.status}: ${detail}`);
       return;
     }
 
     showLoginMessage(data.created ? 'Account created — welcome to Enkryption' : 'Welcome back to Enkryption', 'success');
-    try { localStorage.setItem('username', data.username); } catch {}
+    try {
+      localStorage.setItem('username', data.username);
+      if (data.token) localStorage.setItem('sessionToken', data.token);
+    } catch {}
     setTimeout(() => enterApp(data.username), 700);
   } catch (error) {
-    showLoginMessage('Error: ' + error.message);
+    if (error instanceof TypeError) {
+      showLoginMessage('Cannot reach server (network or CORS). Check the Network tab.');
+    } else {
+      showLoginMessage('Error: ' + error.message);
+    }
+    console.error(error);
   } finally {
     registerBtn.disabled = false;
     loginBtn.disabled = false;
   }
 }
 
-registerBtn.addEventListener('click', (e) => { e.preventDefault(); auth('login'); });
+registerBtn.addEventListener('click', (e) => { e.preventDefault(); auth('register'); });
 loginBtn.addEventListener('click', (e) => { e.preventDefault(); auth('login'); });
 $('authForm').addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); auth('login'); } });
 
@@ -1960,16 +2017,27 @@ function genRandomPassword(len = 16) {
   return out;
 }
 
-function storageKey(username) { return `enkryption-accounts:${username}`; }
-function loadAccounts(username) {
-  try { return JSON.parse(localStorage.getItem(storageKey(username)) || '[]'); }
-  catch { return []; }
-}
-function saveAccounts(username, accounts) {
-  try { localStorage.setItem(storageKey(username), JSON.stringify(accounts)); } catch {}
+// Real backend call for everything account-related. No localStorage involved —
+// the server is the only source of truth for accounts/passwords.
+async function api(action, payload = {}) {
+  const r = await fetch(CONFIG.FUNCTION_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': CONFIG.ANON_KEY,
+      'Authorization': `Bearer ${CONFIG.ANON_KEY}`,
+    },
+    body: JSON.stringify({ action, username: currentUsername, sessionToken: getStoredToken(), ...payload }),
+  });
+  const raw = await r.text();
+  let data; try { data = JSON.parse(raw); } catch { data = null; }
+  if (!r.ok || !data || data.success === false) {
+    throw new Error((data && (data.error || data.message)) || `HTTP ${r.status}: ${raw.slice(0, 200)}`);
+  }
+  return data;
 }
 
-function renderDashboard(username) {
+async function renderDashboard(username) {
   if (!username) return;
   orgListEl.innerHTML = `
     <div class="org-item active">
@@ -1981,8 +2049,23 @@ function renderDashboard(username) {
     </div>
   `;
   setStatus('loading');
-  renderAccountsTable(loadAccounts(username));
-  setStatus('ready');
+  mainContentEl.innerHTML = `<div class="org-header"><div><div class="org-title">${username}</div></div></div><div class="empty-state"><div class="empty-state-title">Loading accounts…</div></div>`;
+  try {
+    const { accounts } = await api('list-accounts');
+    renderAccountsTable(accounts);
+    setStatus('ready');
+  } catch (err) {
+    console.error(err);
+    toast(err.message || 'Failed to load accounts', 'error');
+    setStatus('ready');
+  }
+}
+
+// Shared helper: re-fetch the account list from the server and re-render.
+async function refreshAccounts() {
+  const { accounts } = await api('list-accounts');
+  renderAccountsTable(accounts);
+  return accounts;
 }
 
 function renderEmptyState() {
@@ -2125,24 +2208,30 @@ addAccountBtnEl.addEventListener('click', () => {
   customBtn.onclick = () => { customBtn.classList.add('active'); randomBtn.classList.remove('active'); customPassGroup.style.display = 'block'; };
 
   $('cancelDialog').onclick = closeDialog;
-  $('confirmAddAccount').onclick = () => {
+  $('confirmAddAccount').onclick = async () => {
     const sub = subInput.value.trim();
     if (!sub || !/^[a-zA-Z0-9]+$/.test(sub)) { toast('Invalid username. Use only letters and numbers.', 'error'); return; }
-
-    const accounts = loadAccounts(currentUsername);
-    const fullUsername = `${sub}@${currentUsername}`;
-    if (accounts.some(a => a.username === fullUsername)) { toast('That account already exists.', 'error'); return; }
 
     const useRandom = randomBtn.classList.contains('active');
     const customPass = $('customPassInput').value;
     if (!useRandom && customPass.trim().length < 6) { toast('Custom password must be at least 6 characters.', 'error'); return; }
 
-    setStatus('loading');
+    const confirmBtn = $('confirmAddAccount');
     const password = useRandom ? genRandomPassword() : customPass.trim();
-    accounts.push({ username: fullUsername, password });
-    saveAccounts(currentUsername, accounts);
-    setStatus('saved');
-    openCredentialsDialog(fullUsername, password, useRandom);
+
+    confirmBtn.disabled = true;
+    setStatus('loading');
+    try {
+      const result = await api('add-account', { sub, password });
+      setStatus('saved');
+      openCredentialsDialog(result.username, password, useRandom);
+    } catch (err) {
+      console.error(err);
+      toast(err.message || 'Failed to create account', 'error');
+      setStatus('ready');
+    } finally {
+      confirmBtn.disabled = false;
+    }
   };
 });
 
@@ -2164,7 +2253,10 @@ function openCredentialsDialog(username, password, isRandom) {
   $('copyCredsBtn').onclick = () => {
     navigator.clipboard.writeText(`Username: ${username}\nPassword: ${password}`).then(() => toast('Credentials copied to clipboard'));
   };
-  $('acceptCredsBtn').onclick = () => { renderAccountsTable(loadAccounts(currentUsername)); closeDialog(); };
+  $('acceptCredsBtn').onclick = async () => {
+    closeDialog();
+    try { await refreshAccounts(); } catch (err) { console.error(err); toast(err.message || 'Failed to refresh accounts', 'error'); }
+  };
 }
 
 function openRerollDialog(username) {
@@ -2178,14 +2270,20 @@ function openRerollDialog(username) {
   `;
   dialogOverlayEl.classList.add('active');
   $('cancelDialog').onclick = closeDialog;
-  $('confirmReroll').onclick = () => {
+  $('confirmReroll').onclick = async () => {
+    const confirmBtn = $('confirmReroll');
+    confirmBtn.disabled = true;
     setStatus('loading');
-    const accounts = loadAccounts(currentUsername);
-    const acc = accounts.find(a => a.username === username);
-    if (!acc) { toast('Account not found.', 'error'); setStatus('ready'); return; }
-    acc.password = genRandomPassword();
-    saveAccounts(currentUsername, accounts);
-    openNewPasswordDialog(acc.username, acc.password);
+    try {
+      const { password } = await api('reroll-password', { target: username });
+      openNewPasswordDialog(username, password);
+    } catch (err) {
+      console.error(err);
+      toast(err.message || 'Failed to reroll password', 'error');
+      setStatus('ready');
+    } finally {
+      confirmBtn.disabled = false;
+    }
   };
 }
 
@@ -2217,14 +2315,23 @@ function openDeleteDialog(usernames) {
   `;
   dialogOverlayEl.classList.add('active');
   $('cancelDialog').onclick = closeDialog;
-  $('confirmDelete').onclick = () => {
+  $('confirmDelete').onclick = async () => {
+    const confirmBtn = $('confirmDelete');
+    confirmBtn.disabled = true;
     setStatus('loading');
-    const remaining = loadAccounts(currentUsername).filter(a => !usernames.includes(a.username));
-    saveAccounts(currentUsername, remaining);
-    toast(isMultiple ? `Deleted ${usernames.length} accounts` : `Deleted ${usernames[0]}`);
-    renderAccountsTable(remaining);
-    closeDialog();
-    setStatus('saved');
+    try {
+      await api('delete-accounts', { targets: usernames });
+      toast(isMultiple ? `Deleted ${usernames.length} accounts` : `Deleted ${usernames[0]}`);
+      await refreshAccounts();
+      closeDialog();
+      setStatus('saved');
+    } catch (err) {
+      console.error(err);
+      toast(err.message || 'Failed to delete account(s)', 'error');
+      setStatus('ready');
+    } finally {
+      confirmBtn.disabled = false;
+    }
   };
 }
 
@@ -2233,11 +2340,329 @@ bulkDeleteBtnEl.addEventListener('click', () => {
   if (users.length > 0) openDeleteDialog(users);
 });
 
-(function boot() {
-  const u = getStoredUsername();
-  if (u) enterApp(u); else showLogin();
+(async function boot() {
+  const stored = getStoredUsername();
+  if (!stored) { showLogin(); return; }
+
+  const validated = await checkSession(stored);
+  if (validated) {
+    enterApp(validated);
+  } else {
+    clearSession();
+    showLogin();
+  }
 })();
 </script>
+
+
+<!--
+  ════════════════════════════════════════════════════════════════════════
+  BACKEND — supabase/functions/enkryption/index.ts
+  ════════════════════════════════════════════════════════════════════════
+  This does NOT run in the browser. It must be deployed to Supabase as an
+  Edge Function; it holds SESSION_SECRET and the service-role key, which
+  can never be shipped to client-side code (anyone could read them in dev
+  tools and forge session tokens or hit your database with full admin
+  rights). It's embedded here only so the whole project travels as one
+  file — copy everything between the BEGIN/END markers into its own file
+  named supabase/functions/enkryption/index.ts before deploying.
+
+  Deploy:
+    supabase functions deploy enkryption
+  Secrets needed (supabase secrets set ...):
+    SESSION_SECRET   — random 32+ byte string
+    (SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are injected automatically)
+
+  Also requires a Postgres table:
+    create table enkryption_users (
+      username text primary key,
+      password_hash text not null,
+      owner text references enkryption_users(username)
+    );
+
+  ── BEGIN supabase/functions/enkryption/index.ts ──────────────────────
+
+// supabase/functions/enkryption/index.ts
+//
+// NOTE ON AUTH MODEL (per spec §B4): the original design had no server-side
+// session — just a username/password check with no token, and the frontend
+// was treating `username` in the request body as proof of identity. That is
+// not safe: any caller could pass any username and act as that account.
+//
+// Approach chosen: on login/register we mint a signed, short-lived session
+// token (HMAC-SHA256 over `${username}.${expiry}`, keyed by a server-only
+// secret `SESSION_SECRET`) and return it to the client as `token`. The
+// frontend is expected to store it and send it back as `sessionToken` in the
+// body (or an `x-session-token` header — both are accepted) on every
+// subsequent call. `session-check` and all account actions verify this token
+// and derive the authenticated username from IT, never from the client's
+// claimed `username` field. This requires one small addition on the frontend
+// (storing `data.token` next to `data.username` and sending it back); that
+// single extra field is noted inline in the frontend diff above.
+//
+// Deploy with: supabase functions deploy enkryption
+// Secrets needed: SESSION_SECRET (random 32+ byte string), plus the usual
+// SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY which Supabase injects automatically.
+
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-session-token",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+const SESSION_SECRET = Deno.env.get("SESSION_SECRET") ?? "";
+const SESSION_TTL_MS = 1000 * 60 * 60 * 12; // 12 hours
+
+async function hmac(data: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(SESSION_SECRET),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(data));
+  return btoa(String.fromCharCode(...new Uint8Array(sig))).replace(/[+/=]/g, (c) =>
+    ({ "+": "-", "/": "_", "=": "" }[c]!)
+  );
+}
+
+async function issueToken(username: string): Promise<string> {
+  const expiry = Date.now() + SESSION_TTL_MS;
+  const payload = `${username}.${expiry}`;
+  const sig = await hmac(payload);
+  return `${payload}.${sig}`;
+}
+
+// Returns the verified username, or null if the token is missing/expired/invalid.
+async function verifyToken(token: string | undefined | null): Promise<string | null> {
+  if (!token) return null;
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
+  const [username, expiryStr, sig] = parts;
+  const expected = await hmac(`${username}.${expiryStr}`);
+  if (expected !== sig) return null;
+  const expiry = Number(expiryStr);
+  if (!Number.isFinite(expiry) || Date.now() > expiry) return null;
+  return username;
+}
+
+// Enforces that `candidate` is either the owner itself or a `<sub>@<owner>`
+// sub-account belonging to the owner.
+function belongsToOwner(candidate: string, owner: string): boolean {
+  return candidate === owner || candidate.endsWith(`@${owner}`);
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    if (req.method !== "POST") {
+      return json({ success: false, error: "method not allowed" }, 405);
+    }
+
+    let body: Record<string, unknown>;
+    try {
+      body = await req.json();
+    } catch {
+      return json({ success: false, error: "invalid JSON body" }, 400);
+    }
+
+    const action = String(body.action ?? "");
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+
+    const tokenFromReq =
+      (body.sessionToken as string | undefined) ??
+      req.headers.get("x-session-token") ??
+      undefined;
+
+    switch (action) {
+      case "register": {
+        const username = String(body.username ?? "").trim();
+        const password = String(body.password ?? "");
+        if (!username || !password) {
+          return json({ success: false, error: "username and password are required" }, 400);
+        }
+
+        const { data: existing } = await supabase
+          .from("enkryption_users")
+          .select("username")
+          .eq("username", username)
+          .maybeSingle();
+        if (existing) {
+          return json({ success: false, error: "username already taken" }, 409);
+        }
+
+        const passwordHash = await hashPassword(password);
+        const { error } = await supabase
+          .from("enkryption_users")
+          .insert({ username, password_hash: passwordHash, owner: null });
+        if (error) return json({ success: false, error: error.message }, 400);
+
+        const token = await issueToken(username);
+        return json({ success: true, username, created: true, token });
+      }
+
+      case "login": {
+        const username = String(body.username ?? "").trim();
+        const password = String(body.password ?? "");
+        const { data: user } = await supabase
+          .from("enkryption_users")
+          .select("username, password_hash")
+          .eq("username", username)
+          .maybeSingle();
+        if (!user || !(await verifyPassword(password, user.password_hash))) {
+          return json({ success: false, error: "invalid username or password" }, 401);
+        }
+        const token = await issueToken(username);
+        return json({ success: true, username, created: false, token });
+      }
+
+      case "session-check": {
+        const username = await verifyToken(tokenFromReq);
+        if (!username) return json({ success: false, error: "not authenticated" }, 401);
+        return json({ success: true, username });
+      }
+
+      case "list-accounts": {
+        const owner = await verifyToken(tokenFromReq);
+        if (!owner) return json({ success: false, error: "not authenticated" }, 401);
+
+        const { data, error } = await supabase
+          .from("enkryption_users")
+          .select("username")
+          .eq("owner", owner);
+        if (error) return json({ success: false, error: error.message }, 400);
+
+        return json({ success: true, accounts: (data ?? []).map((r) => ({ username: r.username })) });
+      }
+
+      case "add-account": {
+        const owner = await verifyToken(tokenFromReq);
+        if (!owner) return json({ success: false, error: "not authenticated" }, 401);
+
+        const sub = String(body.sub ?? "").trim();
+        const password = String(body.password ?? "");
+        if (!sub || !/^[a-zA-Z0-9]+$/.test(sub) || !password) {
+          return json({ success: false, error: "invalid sub-account username or password" }, 400);
+        }
+        const fullUsername = `${sub}@${owner}`;
+
+        const { data: existing } = await supabase
+          .from("enkryption_users")
+          .select("username")
+          .eq("username", fullUsername)
+          .maybeSingle();
+        if (existing) return json({ success: false, error: "that account already exists" }, 409);
+
+        const passwordHash = await hashPassword(password);
+        const { error } = await supabase
+          .from("enkryption_users")
+          .insert({ username: fullUsername, password_hash: passwordHash, owner });
+        if (error) return json({ success: false, error: error.message }, 400);
+
+        return json({ success: true, username: fullUsername });
+      }
+
+      case "reroll-password": {
+        const owner = await verifyToken(tokenFromReq);
+        if (!owner) return json({ success: false, error: "not authenticated" }, 401);
+
+        const target = String(body.target ?? "");
+        if (!belongsToOwner(target, owner) || target === owner) {
+          return json({ success: false, error: "not authorized for this account" }, 403);
+        }
+
+        const newPassword = genRandomPassword();
+        const passwordHash = await hashPassword(newPassword);
+        const { error, count } = await supabase
+          .from("enkryption_users")
+          .update({ password_hash: passwordHash })
+          .eq("username", target)
+          .eq("owner", owner);
+        if (error) return json({ success: false, error: error.message }, 400);
+        if (count === 0) return json({ success: false, error: "account not found" }, 404);
+
+        return json({ success: true, password: newPassword });
+      }
+
+      case "delete-accounts": {
+        const owner = await verifyToken(tokenFromReq);
+        if (!owner) return json({ success: false, error: "not authenticated" }, 401);
+
+        const targets = Array.isArray(body.targets) ? body.targets.map(String) : [];
+        if (targets.length === 0) {
+          return json({ success: false, error: "no targets given" }, 400);
+        }
+        if (!targets.every((t) => belongsToOwner(t, owner) && t !== owner)) {
+          return json({ success: false, error: "not authorized for one or more targets" }, 403);
+        }
+
+        const { error, count } = await supabase
+          .from("enkryption_users")
+          .delete()
+          .in("username", targets)
+          .eq("owner", owner);
+        if (error) return json({ success: false, error: error.message }, 400);
+
+        return json({ success: true, deleted: count ?? targets.length });
+      }
+
+      default:
+        return json({ success: false, error: "unknown action" }, 400);
+    }
+  } catch (e) {
+    return json({ success: false, error: String(e) }, 500);
+  }
+});
+
+function genRandomPassword(len = 16): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*";
+  const buf = new Uint32Array(len);
+  crypto.getRandomValues(buf);
+  let out = "";
+  for (let i = 0; i < len; i++) out += chars[buf[i] % chars.length];
+  return out;
+}
+
+async function hashPassword(password: string): Promise<string> {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const keyMaterial = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt, iterations: 100_000, hash: "SHA-256" }, keyMaterial, 256);
+  const hashB64 = btoa(String.fromCharCode(...new Uint8Array(bits)));
+  const saltB64 = btoa(String.fromCharCode(...salt));
+  return `pbkdf2$100000$${saltB64}$${hashB64}`;
+}
+
+async function verifyPassword(password: string, stored: string): Promise<boolean> {
+  const parts = stored.split("$");
+  if (parts.length !== 4) return false;
+  const [, iterStr, saltB64, hashB64] = parts;
+  const iterations = Number(iterStr);
+  const salt = Uint8Array.from(atob(saltB64), (c) => c.charCodeAt(0));
+  const keyMaterial = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt, iterations, hash: "SHA-256" }, keyMaterial, 256);
+  const computedB64 = btoa(String.fromCharCode(...new Uint8Array(bits)));
+  return computedB64 === hashB64;
+}
+
+
+  ── END supabase/functions/enkryption/index.ts ────────────────────────
+-->
 
 </body>
 </html>
